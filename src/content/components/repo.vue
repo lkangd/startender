@@ -3,17 +3,17 @@
     <div class="repo__panel">
       <h3 class="repo__title">
         <span>编辑星标仓库</span>
-        <button @click="$store.commit('toggleRepoEdit', false)">
+        <button @click="close">
           <svg v-html="require('@img/close-con.svg')" />
         </button>
       </h3>
       <div class="repo__wrap">
         <button
-          @click="toggleStar = !toggleStar"
+          @click="toggleStar"
           class="repo__toggle-star"
         >
           <svg v-html="require('@img/github-star.svg')" />
-          <span>{{ toggleStar ? 'Unstar' : 'Star' }}</span>
+          <span>{{ unStar ? 'Star' : 'Unstar' }}</span>
         </button>
 
         <a
@@ -181,7 +181,7 @@ export default {
       tags: [],
       newTag: '',
       remark: '',
-      toggleStar: true,
+      unStar: false,
     };
   },
   watch: {
@@ -250,6 +250,31 @@ export default {
     },
   },
   methods: {
+    close() {
+      // handle unstar
+      this.unStar && this.$store.commit('unstarRepo', this.repoEdit);
+
+      this.$store.commit('toggleRepoEdit', false);
+      this.$store.commit('filterStarredRepos');
+      this.$store.commit('updateTagsBar', this.$tags.store.tags);
+      this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
+      this.$store.commit('updateGroupsBar', this.$groups.store.groups);
+    },
+    async toggleStar() {
+      const loading = this.$loading({ mountPoint: '.repo__panel', text: '提交中...' });
+      try {
+        if (this.unStar) {
+          await starRepo(this.repoEdit.nameWithOwner);
+        } else {
+          await unStarRepo(this.repoEdit.nameWithOwner);
+        }
+        this.unStar = !this.unStar;
+      } catch (e) {
+        console.log('Post star status failed: ' + e);
+      } finally {
+        loading.close();
+      }
+    },
     reset() {
       this.currentGroup = '';
       this.tags = [];
@@ -286,14 +311,7 @@ export default {
       if (this.remark !== this.remarks[this.repoEdit.id]) {
         this.$remarks.update({ id: this.repoEdit.id, content: this.remark.trim() });
       }
-      // handle unstar
-      !this.toggleStar && (await unStarRepo(this.repoEdit.nameWithOwner).then(() => this.$store.commit('unstarRepo', this.repoEdit)));
-
-      this.$store.commit('toggleRepoEdit', false);
-      this.$store.commit('filterStarredRepos');
-      this.$store.commit('updateTagsBar', this.$tags.store.tags);
-      this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
-      this.$store.commit('updateGroupsBar', this.$groups.store.groups);
+      this.close();
     },
     toggleExistGroups(bool) {
       this.showExistGroupsTimer && clearTimeout(this.showExistGroupsTimer);
@@ -356,6 +374,7 @@ export default {
   z-index: 99;
   background-color: rgba(27, 31, 35, 0.5);
   &__panel {
+    position: relative;
     background-clip: padding-box;
     margin: 69px auto;
     width: 450px;

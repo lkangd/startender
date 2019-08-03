@@ -1,13 +1,13 @@
-export default function(o) {
+export default function deepFreeze(o, freezeTop = true) {
   const { hasOwnProperty, getOwnPropertyNames, freeze, isFrozen } = Object;
   const oIsFunction = typeof o === 'function';
 
-  freeze(o);
+  freezeTop && freeze(o);
 
   getOwnPropertyNames(o).forEach(key => {
     const prop = o[key];
     if (
-      hasOwnProperty.call(o, prop) &&
+      hasOwnProperty.call(o, key) &&
       prop !== null &&
       !isFrozen(prop) &&
       (typeof prop === 'object' || typeof prop === 'function') &&

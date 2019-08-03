@@ -36,10 +36,6 @@
               :style="`background-color: ${ starredRepos[repoId].primaryLanguage.color }`"
               class="language-dot"
             ></span>
-            <!-- <span
-              :style="`background-color: ${ languageColors.get(starredRepos[repoId].language) }`"
-              class="language-dot"
-            ></span>-->
             <span>{{ starredRepos[repoId].primaryLanguage.name }}</span>
           </p>
           <p class="repos__item--attrs-stars">

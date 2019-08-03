@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import deepFreeze from '@/utils/deep-freeze';
 
 Vue.use(Vuex);
 
@@ -28,7 +29,7 @@ export default new Vuex.Store({
   mutations: {
     unstarRepo(state, repo) {
       state.starredReposOrigin.splice(repo.repoIndex, 1);
-      state.languages[repo.primaryLanguage.name]--;
+      state.languages[repo.primaryLanguage] && state.languages[repo.primaryLanguage.name]--;
       localStorage.setItem('stars_helper.starred_repos', JSON.stringify(state.starredReposOrigin));
       localStorage.setItem('stars_helper.languages_count', JSON.stringify(state.languages));
     },
@@ -37,18 +38,18 @@ export default new Vuex.Store({
     },
     updateStarredReposOrigin(state, repos) {
       if (repos.cache) {
-        state.starredReposOrigin = Object.freeze(repos.starredRepos);
+        state.starredReposOrigin = deepFreeze(repos.starredRepos, false);
         state.languages = repos.languagesCount;
+        console.log('state.starredReposOrigin :', state.starredReposOrigin);
         return;
       }
       const starredReposOrigin = [];
       state.languages = {};
       for (let i = 0; i < repos.length; i++) {
         const repo = repos[i].node;
-        // repo.cursor = repos[i].cursor;
         repo.starredAt = repos[i].starredAt;
         repo.repoIndex = i;
-        starredReposOrigin.push(repo);
+        starredReposOrigin.push(Object.freeze(repo));
         if (!repo.primaryLanguage) continue;
         if (state.languages[repo.primaryLanguage.name]) {
           state.languages[repo.primaryLanguage.name]++;
@@ -56,7 +57,7 @@ export default new Vuex.Store({
           state.languages[repo.primaryLanguage.name] = 1;
         }
       }
-      state.starredReposOrigin = Object.freeze(starredReposOrigin);
+      state.starredReposOrigin = starredReposOrigin;
       localStorage.setItem('stars_helper.starred_repos', JSON.stringify(state.starredReposOrigin));
       localStorage.setItem('stars_helper.languages_count', JSON.stringify(state.languages));
     },

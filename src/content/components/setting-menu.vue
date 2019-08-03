@@ -11,7 +11,7 @@
         @click="fullRefresh"
         class="setting-menu__panel--item"
         data-menu-item="true"
-      >全量刷新</div>
+      >刷新数据</div>
       <div class="setting-menu__divider"></div>
       <div
         @click="$store.commit('toggleTagManage', true)"
@@ -23,17 +23,6 @@
         class="setting-menu__panel--item"
         data-menu-item="true"
       >分组管理</div>
-      <div class="setting-menu__divider"></div>
-      <div
-        @click="exportAllGroupsToBookmark"
-        class="setting-menu__panel--item"
-        data-menu-item="true"
-      >导出分组书签</div>
-      <div
-        @click="exportAllTagsToBookmark"
-        class="setting-menu__panel--item"
-        data-menu-item="true"
-      >导出标签书签</div>
       <div class="setting-menu__divider"></div>
       <div
         @click="exportDataToJSON"
@@ -58,12 +47,29 @@
         data-menu-item="true"
       >清除数据</div>
       <div class="setting-menu__divider"></div>
+      <div
+        @click="exportAllGroupsToBookmark"
+        class="setting-menu__panel--item"
+        data-menu-item="true"
+      >导出分组书签</div>
+      <div
+        @click="exportAllTagsToBookmark"
+        class="setting-menu__panel--item"
+        data-menu-item="true"
+      >导出标签书签</div>
+      <div class="setting-menu__divider"></div>
       <a
         class="setting-menu__panel--item"
         data-menu-item="true"
-        href="https://github.com/"
+        href="https://github.com/lkangd/github-stars-helper/issues"
         target="_blank"
       >问题反馈</a>
+      <a
+        class="setting-menu__panel--item"
+        data-menu-item="true"
+        href="https://github.com/lkangd/github-stars-helper/issues"
+        target="_blank"
+      >Star支持插件</a>
     </div>
   </div>
 </template>
