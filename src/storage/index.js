@@ -1,6 +1,6 @@
-import GroupController from '../controller/group';
-import RemarkController from '../controller/remark';
-import TagController from '../controller/tag';
+import GroupController from '@/controller/group';
+import RemarkController from '@/controller/remark';
+import TagController from '@/controller/tag';
 import $storageSync from '@/utils/storage-sync';
 
 export default {
@@ -13,7 +13,7 @@ export default {
       const { GITHUB_STARS_HELPER_DATA } = await $storageSync.get({ GITHUB_STARS_HELPER_DATA: this.data });
       this.data = GITHUB_STARS_HELPER_DATA;
     } catch (error) {
-      console.log('error :', error);
+      console.log('Storage init state error :', error);
     }
     return this.data;
   },
@@ -35,7 +35,7 @@ export default {
       await $storageSync.set('GITHUB_STARS_HELPER_DATA', this.data);
       return true;
     } catch (error) {
-      console.log('error :', error);
+      console.log('Storage save state error :', error);
       return false;
     }
   },
@@ -43,7 +43,7 @@ export default {
     try {
       await this.init();
     } catch (error) {
-      console.log('error :', error);
+      console.log('Storage load state error :', error);
       return false;
     }
     switch (true) {
@@ -64,6 +64,6 @@ export default {
   async clearState(data = { tags: { tags: {}, repos: {} }, groups: { groups: {}, repos: {} }, remarks: {} }) {
     this.data = data;
     await $storageSync.set('GITHUB_STARS_HELPER_DATA', this.data);
-    console.warn('Manage Data clear!');
+    console.warn('Storage clear!');
   },
 };

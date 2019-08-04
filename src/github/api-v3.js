@@ -1,7 +1,8 @@
+import qs from 'qs';
+
 import { getPageCountInLink } from '@/github/utils';
 import $http from '@/utils/http';
 import GH from '@/github/config';
-import qs from 'qs';
 
 /**
  * get OAuth access token by access code from github

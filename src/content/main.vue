@@ -9,7 +9,6 @@
       <authorize />
       <resize-handler @resize="resizeSidebar" />
       <toggle @toggle="togglePannel" />
-      <!-- <headers v-model="searchKey" /> -->
       <headers :value.sync="searchKey" />
       <main class="stars-helper__wrapper">
         <tags />
@@ -93,6 +92,8 @@
 <script>
 /* eslint-disable no-console */
 import { mapState } from 'vuex';
+import { debounce } from 'lodash';
+
 import Authorize from './components/authorize';
 import Toggle from './components/toggle';
 import Headers from './components/headers';
@@ -106,9 +107,14 @@ import SettingMenu from './components/setting-menu';
 import ResizeHandler from './components/resize-handler';
 
 import { getAccessCode, isStarsTab } from '@/github/utils';
-// import { getAccessToken, getUserInfo, getStarredRepos } from '@/github/api-v3';
-import * as githubApi from '@/github/api-v3';
 import { getStarredRepos } from '@/github/api-v4';
+
+const SIDEBAR_MIN_WIDTH = 400;
+const TOGGLE_BTN_WIDTH = 30;
+const saveSidebarWidth = debounce(function(width) {
+  localStorage.setItem('stars_helper.sidebar_width', width);
+}, 300);
+const hideGlobalScrollBar = () => $('body').addClass('stars-helper-hide-scroll-bar');
 
 export default {
   name: 'stars-helper',
@@ -120,7 +126,7 @@ export default {
       unGroupOpen: { open: false },
       currentOpenGroupId: '',
       toastIndex: 0,
-      sidebarWidth: 400,
+      sidebarWidth: SIDEBAR_MIN_WIDTH,
     };
   },
   watch: {
@@ -149,7 +155,8 @@ export default {
     ]),
   },
   mounted() {
-    this.sidebarWidth = localStorage.getItem('stars_helper.sidebar_width') || 400;
+    hideGlobalScrollBar();
+    this.sidebarWidth = localStorage.getItem('stars_helper.sidebar_width') || SIDEBAR_MIN_WIDTH;
     if (localStorage.getItem('stars_helper.starred_repos')) {
       const starredRepos = JSON.parse(localStorage.getItem('stars_helper.starred_repos'));
       const languagesCount = JSON.parse(localStorage.getItem('stars_helper.languages_count'));
@@ -166,31 +173,23 @@ export default {
         })
         .finally(() => loading.close());
     }
-    this.hideGlobalScrollBar();
     this.$store.commit('updateTagsBar', this.$tags.store.tags);
     this.$store.commit('updateGroupsBar', this.$groups.store.groups);
   },
   methods: {
     resizeSidebar(offsetX) {
       const newWidth = +this.sidebarWidth + offsetX;
-      if (newWidth + 30 > document.documentElement.clientWidth) {
+      if (newWidth + TOGGLE_BTN_WIDTH > document.documentElement.clientWidth) {
         return;
       }
-      if (newWidth < 400) {
-        this.sidebarWidth = 400;
-      } else {
-        this.sidebarWidth = newWidth;
-      }
-      localStorage.setItem('stars_helper.sidebar_width', this.sidebarWidth);
+      this.sidebarWidth = Math.max(SIDEBAR_MIN_WIDTH, newWidth);
+      saveSidebarWidth(this.sidebarWidth);
     },
     togglePannel(bool) {
       this.openPanel = bool;
     },
     toggleGroup(group) {
       this.$set(group, 'open', !group.open);
-    },
-    hideGlobalScrollBar() {
-      $('body').addClass('stars-helper-hide-scroll-bar');
     },
   },
   components: {

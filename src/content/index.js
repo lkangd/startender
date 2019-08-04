@@ -1,5 +1,5 @@
 import '@/assets/less';
-import { isStarsTab, setStarsTabUrl } from '@/github/utils';
+import { isStarsTab, saveStarsTabUrl } from '@/github/utils';
 import { getAccessToken } from '@/github/api-v3';
 import $storageSync from '@/utils/storage-sync';
 
@@ -25,12 +25,25 @@ Vue.directive('high-light', highLight);
 Vue.filter('formatUpdate', formatUpdate);
 Vue.filter('formatNumber', formatNumber);
 
-setStarsTabUrl();
+saveStarsTabUrl();
+
+let app = null;
+const instantiation = () => {
+  const id = 'stars-helper';
+  $(`<div id="${id}"></div>`).appendTo($('body'));
+  setTimeout(() => {
+    app = new Vue({ store, render: h => h(Main) });
+    app.$mount(`#${id}`);
+  }, 0);
+};
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   if (request.accessCode) {
     const accessToken = await getAccessToken(request.accessCode);
     $storageSync.set('GITHUB_STARS_HELPER_ACCESS_TOKEN', accessToken);
     window.location.replace(localStorage.getItem('stars_helper.stars_tab_url'));
+  }
+  if (request.mountInstance && !app) {
+    instantiation();
   }
 });
 
@@ -53,15 +66,5 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   store.commit('installFilterController', filters);
 
   // only init views in stars page
-  const instantiation = () => {
-    const id = 'stars-helper';
-    $(`<div id="${id}"></div>`).appendTo($('body'));
-    setTimeout(() => new Vue({ store, render: h => h(Main) }).$mount(`#${id}`), 0);
-  };
-
   isStarsTab() && instantiation();
-
-  chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-    request.mountInstance && !$('#stars-helper').length && instantiation();
-  });
 })();

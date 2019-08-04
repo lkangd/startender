@@ -40,7 +40,6 @@ export default new Vuex.Store({
       if (repos.cache) {
         state.starredReposOrigin = deepFreeze(repos.starredRepos, false);
         state.languages = repos.languagesCount;
-        console.log('state.starredReposOrigin :', state.starredReposOrigin);
         return;
       }
       const starredReposOrigin = [];

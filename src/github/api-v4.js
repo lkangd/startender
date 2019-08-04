@@ -3,11 +3,12 @@ import ApolloClient from 'apollo-client';
 import { createHttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 
+import GH from '@/github/config';
 import Store from '@/content/store';
 import Toast from '@/content/components/toast/index';
 import Loading from '@/content/components/loading/index';
 
-const link = createHttpLink({ uri: 'https://api.github.com/graphql' });
+const link = createHttpLink({ uri: GH.API_V4 });
 const cache = new InMemoryCache();
 const defaultOptions = {
   watchQuery: {

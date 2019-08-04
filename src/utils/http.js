@@ -3,7 +3,7 @@ import GH from '@/github/config';
 import Store from '@/content/store';
 
 const $http = (() => {
-  const $http = Axios.create({ baseURL: GH.API });
+  const $http = Axios.create({ baseURL: GH.API_V3 });
 
   $http.interceptors.request.use(
     config => {
