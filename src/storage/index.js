@@ -13,7 +13,7 @@ export default {
       const { GITHUB_STARS_HELPER_DATA } = await $storageSync.get({ GITHUB_STARS_HELPER_DATA: this.data });
       this.data = GITHUB_STARS_HELPER_DATA;
     } catch (error) {
-      console.log('Storage init state error :', error);
+      console.error('Storage init state error :', error);
     }
     return this.data;
   },
@@ -35,7 +35,7 @@ export default {
       await $storageSync.set('GITHUB_STARS_HELPER_DATA', this.data);
       return true;
     } catch (error) {
-      console.log('Storage save state error :', error);
+      console.error('Storage save state error :', error);
       return false;
     }
   },
@@ -43,7 +43,7 @@ export default {
     try {
       await this.init();
     } catch (error) {
-      console.log('Storage load state error :', error);
+      console.error('Storage load state error :', error);
       return false;
     }
     switch (true) {
@@ -61,7 +61,7 @@ export default {
     }
     return true;
   },
-  async clearState(data = { tags: { tags: {}, repos: {} }, groups: { groups: {}, repos: {} }, remarks: {} }) {
+  async setState(data = { tags: { tags: {}, repos: {} }, groups: { groups: {}, repos: {} }, remarks: {} }) {
     this.data = data;
     await $storageSync.set('GITHUB_STARS_HELPER_DATA', this.data);
     console.warn('Storage clear!');

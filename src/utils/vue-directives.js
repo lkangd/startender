@@ -1,7 +1,7 @@
 const highlightTagRegExp = /\<span style\=\"color\: \#e36209\; font\-weight\: inherit\;\"\>(.*?)\<\/span\>/gm;
 const highlightedTagRemove = innerHTML => innerHTML.replace(highlightTagRegExp, '$1');
 
-export function highLight(el, binding) {
+export function highlight(el, binding) {
   if (!binding.value || !binding.value.trim().length) {
     el.innerHTML = highlightedTagRemove(el.innerHTML);
     return;

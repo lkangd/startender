@@ -152,7 +152,7 @@
       <div class="repo__operate">
         <button
           @click="save"
-          class="repo__operate--btn high-light"
+          class="repo__operate--btn highlight"
         >保存</button>
         <button
           @click="reset"
@@ -662,7 +662,7 @@ export default {
         background-position: -0.5em;
         border-color: rgba(27, 31, 35, 0.35);
       }
-      &.high-light {
+      &.highlight {
         color: #fff;
         background-color: #28a745;
         background-image: linear-gradient(-180deg, #34d058, #28a745 90%);

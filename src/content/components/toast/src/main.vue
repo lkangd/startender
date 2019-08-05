@@ -11,7 +11,7 @@
       class="toast"
       v-show="visible"
     >
-      <p class="toast__text">{{ text }}</p>
+      <p class="toast__text">{{ text || type }}</p>
       <svg
         @click.stop="close"
         class="toast__icon"
@@ -35,7 +35,7 @@ export default {
   data() {
     return {
       type: 'info',
-      text: '数据刷新成功!',
+      text: '',
       closed: false,
       visible: false,
       timer: null,
@@ -110,11 +110,10 @@ export default {
   align-items: center;
   padding: 0 8px 0 12px;
   height: 30px;
-  color: rgb(36, 41, 46);
-  background-color: #fff;
+  color: #fff;
+  background-color: #1b1f23;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
-  border: 1px solid;
   background-clip: padding-box;
   border-right: none;
   box-shadow: 0 2px 7px 3px rgba(0, 0, 0, 0.06);
@@ -123,22 +122,19 @@ export default {
   .transitions(toast-fade, opacity, 0);
   .transitions(toast-fade, transform, translateX(100%));
   &--info {
-    color: rgba(100, 100, 100, 0.8);
-    border-color: rgba(100, 100, 100, 0.6);
+    background-color: #1b1f23;
   }
   &--success {
-    color: rgba(40, 167, 69, 0.8);
-    border-color: rgba(40, 167, 69, 0.6);
+    background-color: #28a745;
   }
   &--error {
-    color: rgba(203, 36, 49, 0.8);
-    border-color: rgba(203, 36, 49, 0.6);
+    background-color: #cb2431;
   }
   &--warning {
-    color: rgba(255, 120, 0, 0.8);
-    border-color: rgba(255, 120, 0, 0.6);
+    background-color: #ff7800;
   }
   &__text {
+    margin: 0;
     font-size: 12px;
     font-weight: 400;
   }

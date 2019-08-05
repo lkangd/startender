@@ -29,7 +29,7 @@
               />
             </div>
             <repos
-              :high-light-text="searchKey"
+              :highlight-text="searchKey"
               :repoIds="unGroupRepoIds"
               v-if="unGroupOpen.open"
             />
@@ -52,7 +52,7 @@
               />
             </div>
             <repos
-              :high-light-text="searchKey"
+              :highlight-text="searchKey"
               :repoIds="group.repos"
               v-if="group.open"
             />
@@ -73,7 +73,7 @@
               />
             </div>
             <repos
-              :high-light-text="searchKey"
+              :highlight-text="searchKey"
               :repoIds="starredRepoIds"
               v-if="allGroupOpen.open"
             />

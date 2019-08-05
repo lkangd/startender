@@ -3,13 +3,13 @@ import { isStarsTab, saveStarsTabUrl } from '@/github/utils';
 import { getAccessToken } from '@/github/api-v3';
 import $storageSync from '@/utils/storage-sync';
 
-import { highLight } from '@/utils/vue-directives';
+import { highlight } from '@/utils/vue-directives';
 import { formatUpdate, formatNumber } from '@/utils/vue-filters';
 
-import FilterController from '../controller/filter';
-import GroupController from '../controller/group';
-import RemarkController from '../controller/remark';
-import TagController from '../controller/tag';
+import FilterController from '@/controller/filter';
+import GroupController from '@/controller/group';
+import RemarkController from '@/controller/remark';
+import TagController from '@/controller/tag';
 
 import store from './store';
 
@@ -21,7 +21,7 @@ import Toast from '@/content/components/toast/index';
 Vue.use(Loading, { mountPoint: '#stars-helper' });
 Vue.use(Toast, { mountPoint: '#stars-helper' });
 
-Vue.directive('high-light', highLight);
+Vue.directive('highlight', highlight);
 Vue.filter('formatUpdate', formatUpdate);
 Vue.filter('formatNumber', formatNumber);
 

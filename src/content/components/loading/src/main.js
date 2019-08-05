@@ -12,7 +12,7 @@ export default function Loading(options = {}) {
 
   if ($(options.mountPoint).length) {
     $(options.mountPoint)[0].appendChild(instance.$el);
-  } else if ($(this.mountPoint).length) {
+  } else if (this && $(this.mountPoint).length) {
     $(this.mountPoint)[0].appendChild(instance.$el);
   } else {
     document.body.appendChild(instance.$el);
