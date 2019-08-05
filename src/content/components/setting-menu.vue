@@ -89,21 +89,21 @@ export default {
   },
   methods: {
     async clearAllData() {
-      const loading = this.$loading({ mountPoint: '#stars-helper', text: '数据清除中...' });
+      const loading = this.$loading('数据清除中...');
       try {
         await $storageSync.clear();
         localStorage.removeItem('stars_helper.starred_repos');
         loading.update('插件重启中...');
-        this.$toast.success({ mountPoint: '#stars-helper', text: '清除管理数据成功' });
+        this.$toast.success('清除管理数据成功');
         window.location.reload();
       } catch (e) {
         loading.update('插件重启中...');
-        this.$toast.error({ mountPoint: '#stars-helper', text: '清除管理数据失败' });
+        this.$toast.error('清除管理数据失败');
         window.location.reload();
       }
     },
     handleChange(evt) {
-      const loading = this.$loading({ mountPoint: '#stars-helper', text: '数据恢复中...' });
+      const loading = this.$loading('数据恢复中...');
       const file = evt.target.files[0];
       const reader = new FileReader();
       reader.onload = async evt => {
@@ -114,12 +114,12 @@ export default {
         try {
           await Promise.all([this.$remarks.revertStore(data.remarks), this.$tags.revertStore(data.tags), this.$groups.revertStore(data.groups)]);
           loading.update('插件重启中...');
-          this.$toast.success({ mountPoint: '#stars-helper', text: '恢复管理数据成功' });
+          this.$toast.success('恢复管理数据成功');
           window.location.reload();
         } catch (error) {
           console.log('Manage Data Revert Failed :', error);
           loading.update('数据回滚, 插件重启中...');
-          this.$toast.error({ mountPoint: '#stars-helper', text: '恢复管理数据失败' });
+          this.$toast.error('恢复管理数据失败');
           (async () => {
             await Storage.clearState(tmpWholeData);
             window.location.reload();
@@ -133,7 +133,7 @@ export default {
         this.$store.commit('updateStarredReposOrigin', starredRepos);
         this.$store.commit('filterStarredRepos');
         this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
-        this.$toast.success({ mountPoint: '#stars-helper', text: '数据已刷新' });
+        this.$toast.success('数据已刷新');
       });
     },
     exportAllGroupsToBookmark() {
@@ -158,7 +158,7 @@ export default {
       const data = JSON.stringify({ groups, tags, remarks }, null, 2);
       const file = new File([data], 'github-stars-helper.json', { type: 'text/plain;charset=utf-8' });
       saveAs(file);
-      this.$toast.success({ mountPoint: '#stars-helper', text: '备份管理数据成功' });
+      this.$toast.success('备份管理数据成功');
     },
     exportAllTagsToBookmark() {
       const data = {
@@ -169,10 +169,12 @@ export default {
       this._generateBookmarks(data, tags);
     },
     _generateChild(repoId) {
-      return {
-        name: this.starredRepos[repoId].nameWithOwner,
-        url: this.starredRepos[repoId].url,
-      };
+      if (this.starredRepos[repoId]) {
+        return {
+          name: this.starredRepos[repoId].nameWithOwner,
+          url: this.starredRepos[repoId].url,
+        };
+      }
     },
     _generateBookmarks(data, sorts) {
       for (const key in sorts) {
@@ -186,8 +188,7 @@ export default {
         }
       }
       chrome.runtime.sendMessage({ action: 'bookmarks', data }, response => {
-        // console.log(response);
-        this.$toast({ mountPoint: '#stars-helper', text: '导出书签成功!' });
+        this.$toast('导出书签成功!');
       });
     },
     handleMenuClick($event) {

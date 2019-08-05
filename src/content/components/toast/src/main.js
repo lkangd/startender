@@ -22,11 +22,15 @@ export default function Toast(options = {}) {
   });
   instance.id = id;
   instance.$mount();
+
   if ($(options.mountPoint).length) {
     $(options.mountPoint)[0].appendChild(instance.$el);
+  } else if ($(this.mountPoint).length) {
+    $(this.mountPoint)[0].appendChild(instance.$el);
   } else {
     document.body.appendChild(instance.$el);
   }
+
   let verticalOffset = options.offset || 49;
   instances.forEach(item => {
     verticalOffset += item.$el.offsetHeight + 6;
@@ -71,4 +75,21 @@ Toast.closeAll = function() {
   for (let i = instances.length - 1; i >= 0; i--) {
     instances[i].close();
   }
+};
+
+Toast.install = function(Vue, { mountPoint } = {}) {
+  const context = { mountPoint };
+  Vue.prototype.$toast = Toast.bind(context);
+  ['success', 'warning', 'info', 'error'].forEach(type => {
+    Vue.prototype.$toast[type] = options => {
+      if (typeof options === 'string') {
+        options = {
+          text: options,
+        };
+      }
+      options.type = type;
+      console.log('options :', options);
+      return Toast.call(context, options);
+    };
+  });
 };

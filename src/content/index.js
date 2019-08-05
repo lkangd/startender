@@ -18,8 +18,8 @@ import Main from './main';
 
 import Loading from '@/content/components/loading/index';
 import Toast from '@/content/components/toast/index';
-Vue.prototype.$loading = Loading;
-Vue.prototype.$toast = Toast;
+Vue.use(Loading, { mountPoint: '#stars-helper' });
+Vue.use(Toast, { mountPoint: '#stars-helper' });
 
 Vue.directive('high-light', highLight);
 Vue.filter('formatUpdate', formatUpdate);

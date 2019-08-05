@@ -158,20 +158,18 @@ export default {
     hideGlobalScrollBar();
     this.sidebarWidth = localStorage.getItem('stars_helper.sidebar_width') || SIDEBAR_MIN_WIDTH;
     if (localStorage.getItem('stars_helper.starred_repos')) {
+      this.$toast('Now using cached data');
       const starredRepos = JSON.parse(localStorage.getItem('stars_helper.starred_repos'));
       const languagesCount = JSON.parse(localStorage.getItem('stars_helper.languages_count'));
       this.$store.commit('updateStarredReposOrigin', { starredRepos, languagesCount, cache: true });
       this.$store.commit('filterStarredRepos');
       this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
     } else {
-      const loading = this.$loading({ mountPoint: '#stars-helper' });
-      getStarredRepos()
-        .then(starredRepos => {
-          this.$store.commit('updateStarredReposOrigin', starredRepos);
-          this.$store.commit('filterStarredRepos');
-          this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
-        })
-        .finally(() => loading.close());
+      getStarredRepos().then(starredRepos => {
+        this.$store.commit('updateStarredReposOrigin', starredRepos);
+        this.$store.commit('filterStarredRepos');
+        this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
+      });
     }
     this.$store.commit('updateTagsBar', this.$tags.store.tags);
     this.$store.commit('updateGroupsBar', this.$groups.store.groups);
