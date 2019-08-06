@@ -31,6 +31,7 @@ export default class TagController {
   }
   update({ id, name, repos }) {
     this.store.tags[id] = { name, repos };
+    this._updateNameMap({ id, name });
     this._save();
   }
   /**
@@ -83,6 +84,14 @@ export default class TagController {
     this.store = { tags: {}, repos: {} };
     this._save();
   }
+  _updateNameMap({ id, name }) {
+    for (const key in this.nameMap) {
+      if (this.nameMap.hasOwnProperty(key) && this.nameMap[key] === id) {
+        delete this.nameMap[key];
+        this.nameMap[name] = id;
+      }
+    }
+  }
   _initNameMap() {
     this.nameMap = {};
     for (const key in this.store.tags) {
@@ -98,11 +107,17 @@ export default class TagController {
         this.delete(key);
       }
     }
+    for (const key in this.store.repos) {
+      if (this.store.repos.hasOwnProperty(key) && this.store.repos[key].length === 0) {
+        delete this.store.repos[key];
+      }
+    }
   }
   async init() {
     const result = await Storage.loadState(this);
     this._clearEmpty();
     this._initNameMap();
+    console.log('this.store :', this.store);
     return result;
   }
   async revertStore(backupData) {

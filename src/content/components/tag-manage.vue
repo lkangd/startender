@@ -36,13 +36,14 @@
           <input
             :ref="`tagNameInput${index}`"
             @blur="modifyTagName(tag, index)"
+            @focus="editingName = tag.name"
             @keyup.enter="modifyTagName(tag, index)"
             class="list-item__input"
             maxlength="20"
             placeholder="输入标签名并回车确定..."
             type="text"
             v-if="tag.editing"
-            v-model="tag.name"
+            v-model="editingName"
           />
           <div
             class="list-item__name"
@@ -80,6 +81,7 @@ export default {
       willAddTags: [],
       newTagName: '',
       tags: [],
+      editingName: '',
     };
   },
   watch: {
@@ -92,7 +94,10 @@ export default {
   },
   methods: {
     modifyTagName(tag, index) {
-      if (!tag.name) this.deleteTag(tag, index);
+      if (!this.editingName) this.deleteTag(tag, index);
+      if (!this.tags.find(tag => tag.name == this.editingName)) {
+        this.$set(tag, 'name', this.editingName);
+      }
       this.$set(tag, 'editing', false);
     },
     deleteTag({ id }, index) {

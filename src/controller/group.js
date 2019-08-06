@@ -41,6 +41,7 @@ export default class GroupController {
    */
   update({ id, name, order, repos }) {
     this.store.groups[id] = { name, order, repos };
+    this._updateNameMap({ id, name });
     this._save();
   }
   /**
@@ -103,6 +104,14 @@ export default class GroupController {
     if (orders.length) {
       const lastOrder = Math.max.apply(null, orders);
       this.orderBase = lastOrder + 1;
+    }
+  }
+  _updateNameMap({ id, name }) {
+    for (const key in this.nameMap) {
+      if (this.nameMap.hasOwnProperty(key) && this.nameMap[key] === id) {
+        delete this.nameMap[key];
+        this.nameMap[name] = id;
+      }
     }
   }
   _initNameMap() {
