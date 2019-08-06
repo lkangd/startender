@@ -1,26 +1,24 @@
-import '@/assets/less';
-import { isStarsTab, saveStarsTabUrl } from '@/github/utils';
-import { getAccessToken } from '@/github/api-v3';
-import $storageSync from '@/utils/storage-sync';
-
-import { highlight } from '@/utils/vue-directives';
-import { formatUpdate, formatNumber } from '@/utils/vue-filters';
-
-import FilterController from '@/controller/filter';
-import GroupController from '@/controller/group';
-import RemarkController from '@/controller/remark';
-import TagController from '@/controller/tag';
-
-import store from './store';
-
 import Vue from 'vue';
 import Main from './main';
+import store from './store';
 
-import Loading from '@/content/components/loading/index';
+import FilterController from '@/controller/filter';
+import RemarkController from '@/controller/remark';
+import GroupController from '@/controller/group';
+import TagController from '@/controller/tag';
+
+import '@/assets/less';
+import $storageSync from '@/utils/storage-sync';
+import { getAccessToken } from '@/github/api-v3';
+import { isStarsTab, saveStarsTabUrl } from '@/github/utils';
+
 import Toast from '@/content/components/toast/index';
-Vue.use(Loading, { mountPoint: '#stars-helper' });
-Vue.use(Toast, { mountPoint: '#stars-helper' });
+import Loading from '@/content/components/loading/index';
+import { formatUpdate, formatNumber } from '@/utils/vue-filters';
+import { highlight } from '@/utils/vue-directives';
 
+Vue.use(Toast, { mountPoint: '#stars-helper' });
+Vue.use(Loading, { mountPoint: '#stars-helper' });
 Vue.directive('highlight', highlight);
 Vue.filter('formatUpdate', formatUpdate);
 Vue.filter('formatNumber', formatNumber);

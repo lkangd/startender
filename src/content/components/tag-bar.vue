@@ -1,39 +1,32 @@
 <template>
-  <ol
-    class="stars-helper__tags"
-    ref="tags"
-  >
+  <ol class="tag-bar">
     <li
-      :class="{ active: filtedTagId === Infinity }"
-      @click="toggleTag(Infinity)"
-      class="stars-helper__tags--item"
+      :class="{ 'tag-bar__item--active': $store.state.filtedTagId === Infinity }"
+      @click="handleClick(Infinity)"
+      class="tag-bar__item"
     >全部</li>
     <li
-      :class="{ active: filtedTagId === item.id }"
+      :class="{ 'tag-bar__item--active': $store.state.filtedTagId === item.id }"
       :key="index"
-      @click="toggleTag(item.id)"
-      class="stars-helper__tags--item"
+      @click="handleClick(item.id)"
+      class="tag-bar__item"
       v-for="(item, index) in $store.state.tag.bars"
     >{{ `${item.name}(${item.repos.length})` }}</li>
     <li
-      :class="{ active: filtedTagId === -Infinity }"
-      @click="toggleTag(-Infinity)"
-      class="stars-helper__tags--item"
+      :class="{ 'tag-bar__item--active': $store.state.filtedTagId === -Infinity }"
+      @click="handleClick(-Infinity)"
+      class="tag-bar__item"
     >无标签</li>
   </ol>
 </template>
 
 <script>
 /* eslint-disable no-console */
-import { mapState } from 'vuex';
 
 export default {
-  name: 'stars-helper__tags',
-  computed: {
-    ...mapState(['filtedTagId']),
-  },
+  name: 'tag-bar',
   methods: {
-    toggleTag(id) {
+    handleClick(id) {
       if (id === -Infinity) {
         this.$filters.setTagFilter(true, '');
       } else if (id === Infinity) {
@@ -51,7 +44,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-.stars-helper__tags {
+.tag-bar {
   @side-padding: 16px;
   padding: 0 @side-padding;
   height: 46px;
@@ -67,7 +60,7 @@ export default {
     width: 0;
     height: 0;
   }
-  &--item {
+  &__item {
     display: inline-block;
     padding: 0 8px;
     height: 20px;
@@ -77,16 +70,15 @@ export default {
     border-radius: 500px;
     border: 1px solid transparent;
     list-style: none;
-    cursor: pointer;
     overflow: hidden;
+    cursor: pointer;
     & + & {
       margin-left: 4px;
     }
     &:hover {
       border-color: rgba(27, 31, 35, 0.08);
     }
-    &.active {
-      // font-weight: 600;
+    &--active {
       background-color: rgba(27, 31, 35, 0.08);
       &:hover {
         border-color: transparent;

@@ -11,7 +11,7 @@
       <toggle />
       <headers :value.sync="searchKey" />
       <main class="stars-helper__wrapper">
-        <tags />
+        <tag-bar />
         <ul class="stars-helper__repos">
           <!-- 未分组 -->
           <li
@@ -97,10 +97,10 @@ import { debounce } from 'lodash';
 import Authorize from './components/authorize';
 import Toggle from './components/toggle';
 import Headers from './components/headers';
-import Tags from './components/tags';
 import Repos from './components/repos';
 import GroupManage from './components/group-manage';
 import TagManage from './components/tag-manage';
+import TagBar from './components/tag-bar';
 import Repo from './components/repo';
 import FilterMenu from './components/filter-menu';
 import SettingMenu from './components/setting-menu';
@@ -181,10 +181,10 @@ export default {
     Authorize,
     Toggle,
     Headers,
-    Tags,
     Repos,
     GroupManage,
     TagManage,
+    TagBar,
     Repo,
     FilterMenu,
     SettingMenu,

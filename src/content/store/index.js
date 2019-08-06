@@ -2,8 +2,8 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import domModule from './modules/dom';
-import groupModule from './modules/group';
 import tagModule from './modules/tag';
+import groupModule from './modules/group';
 import remarkModule from './modules/remark';
 
 import deepFreeze from '@/utils/deep-freeze';
@@ -13,8 +13,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   modules: {
     dom: domModule,
-    group: groupModule,
     tag: tagModule,
+    group: groupModule,
     remark: remarkModule,
   },
   state: {
