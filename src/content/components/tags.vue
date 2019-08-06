@@ -13,7 +13,7 @@
       :key="index"
       @click="toggleTag(item.id)"
       class="stars-helper__tags--item"
-      v-for="(item, index) in tagsBar"
+      v-for="(item, index) in $store.state.tag.bars"
     >{{ `${item.name}(${item.repos.length})` }}</li>
     <li
       :class="{ active: filtedTagId === -Infinity }"
@@ -30,7 +30,7 @@ import { mapState } from 'vuex';
 export default {
   name: 'stars-helper__tags',
   computed: {
-    ...mapState(['filtedTagId', 'tagsBar']),
+    ...mapState(['filtedTagId']),
   },
   methods: {
     toggleTag(id) {
@@ -43,8 +43,8 @@ export default {
       }
       this.$store.commit('filterStarredRepos');
       this.$store.commit('updateFilteredTagId', id);
-      this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
-      this.$store.commit('updateGroupsBar', this.$groups.store.groups);
+      this.$store.commit('updateUnGroupRepoIds');
+      this.$store.dispatch('group/UPDATE_BARS');
     },
   },
 };

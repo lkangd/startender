@@ -55,13 +55,14 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   const tags = new TagController();
   const remarks = new RemarkController();
 
-  await Promise.all([groups.init(), tags.init(), remarks.init()]);
+  await Promise.all([
+    store.dispatch('group/INSTALL_CONTROLLER', groups),
+    store.dispatch('tag/INSTALL_CONTROLLER', tags),
+    store.dispatch('remark/INSTALL_CONTROLLER', remarks),
+  ]);
 
   const filters = new FilterController(groups, tags, remarks);
 
-  Vue.prototype.$groups = groups;
-  Vue.prototype.$tags = tags;
-  Vue.prototype.$remarks = remarks;
   Vue.prototype.$filters = filters;
   store.commit('installFilterController', filters);
 

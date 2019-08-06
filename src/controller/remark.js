@@ -1,5 +1,4 @@
 import Storage from '@/storage';
-import Vue from 'vue';
 
 export default class RemarkController {
   constructor() {
@@ -10,8 +9,8 @@ export default class RemarkController {
    * @param {object} remark { id: string, content: string }
    * @memberof RemarkController
    */
-  add(remark) {
-    Vue.set(this.store, remark.id, remark.content);
+  add({ id, content }) {
+    this.store[id] = content;
     this.save();
   }
   /**
@@ -33,7 +32,6 @@ export default class RemarkController {
    * @memberof RemarkController
    */
   delete(id) {
-    Vue.set(this.store, id, '');
     delete this.store[id];
     this.save();
   }

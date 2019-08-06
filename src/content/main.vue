@@ -1,14 +1,14 @@
 <template>
   <div class="stars-helper-wrapper">
     <div
-      :class="{ open: openPanel }"
+      :class="{ open: $store.state.dom.showPanel }"
       :style="`width: ${sidebarWidth}px`"
       class="stars-helper"
       id="stars-helper"
     >
       <authorize />
       <resize-handler @resize="resizeSidebar" />
-      <toggle @toggle="togglePannel" />
+      <toggle />
       <headers :value.sync="searchKey" />
       <main class="stars-helper__wrapper">
         <tags />
@@ -39,7 +39,7 @@
             :class="{ open: group.open }"
             :key="index"
             class="stars-helper__repos--item"
-            v-for="(group, index) in groupsBar"
+            v-for="(group, index) in $store.state.group.bars"
           >
             <div
               @click="toggleGroup(group)"
@@ -81,11 +81,11 @@
         </ul>
       </main>
     </div>
-    <group v-if="showGroupEdit" />
-    <tag-manage v-if="showTagManage" />
-    <repo v-if="showRepoEdit" />
-    <sort-menu v-if="showFilterMenu" />
-    <setting-menu v-if="showSettingMenu" />
+    <repo v-if="$store.state.dom.showRepoEdit" />
+    <tag-manage v-if="$store.state.dom.showTagManage" />
+    <group-manage v-if="$store.state.dom.showGroupManage" />
+    <filter-menu v-if="$store.state.dom.showFilterMenu" />
+    <setting-menu v-if="$store.state.dom.showSettingMenu" />
   </div>
 </template>
 
@@ -99,10 +99,10 @@ import Toggle from './components/toggle';
 import Headers from './components/headers';
 import Tags from './components/tags';
 import Repos from './components/repos';
-import Group from './components/group';
+import GroupManage from './components/group-manage';
 import TagManage from './components/tag-manage';
 import Repo from './components/repo';
-import SortMenu from './components/sort-menu';
+import FilterMenu from './components/filter-menu';
 import SettingMenu from './components/setting-menu';
 import ResizeHandler from './components/resize-handler';
 
@@ -121,7 +121,6 @@ export default {
   data() {
     return {
       searchKey: '',
-      openPanel: true,
       allGroupOpen: { open: false },
       unGroupOpen: { open: false },
       currentOpenGroupId: '',
@@ -137,24 +136,15 @@ export default {
         this.$filters.setSearchFilter(true, newVal.trim());
       }
       this.$store.commit('filterStarredRepos');
-      this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
-      this.$store.commit('updateGroupsBar', this.$groups.store.groups);
+      this.$store.commit('updateUnGroupRepoIds');
+      this.$store.dispatch('group/UPDATE_BARS');
     },
   },
   computed: {
-    ...mapState([
-      'groupsBar',
-      'unGroupRepoIds',
-      'starredRepos',
-      'starredRepoIds',
-      'showGroupEdit',
-      'showTagManage',
-      'showRepoEdit',
-      'showFilterMenu',
-      'showSettingMenu',
-    ]),
+    ...mapState(['unGroupRepoIds', 'starredRepos', 'starredRepoIds']),
   },
   mounted() {
+    this.$store.dispatch('group/UPDATE_BARS');
     hideGlobalScrollBar();
     this.sidebarWidth = localStorage.getItem('stars_helper.sidebar_width') || SIDEBAR_MIN_WIDTH;
     if (localStorage.getItem('stars_helper.starred_repos')) {
@@ -163,16 +153,16 @@ export default {
       const languagesCount = JSON.parse(localStorage.getItem('stars_helper.languages_count'));
       this.$store.commit('updateStarredReposOrigin', { starredRepos, languagesCount, cache: true });
       this.$store.commit('filterStarredRepos');
-      this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
+      this.$store.commit('updateUnGroupRepoIds');
     } else {
       getStarredRepos().then(starredRepos => {
         this.$store.commit('updateStarredReposOrigin', starredRepos);
         this.$store.commit('filterStarredRepos');
-        this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
+        this.$store.commit('updateUnGroupRepoIds');
       });
     }
-    this.$store.commit('updateTagsBar', this.$tags.store.tags);
-    this.$store.commit('updateGroupsBar', this.$groups.store.groups);
+    this.$store.dispatch('tag/UPDATE_BARS');
+    this.$store.dispatch('group/UPDATE_BARS');
   },
   methods: {
     resizeSidebar(offsetX) {
@@ -182,9 +172,6 @@ export default {
       }
       this.sidebarWidth = Math.max(SIDEBAR_MIN_WIDTH, newWidth);
       saveSidebarWidth(this.sidebarWidth);
-    },
-    togglePannel(bool) {
-      this.openPanel = bool;
     },
     toggleGroup(group) {
       this.$set(group, 'open', !group.open);
@@ -196,10 +183,10 @@ export default {
     Headers,
     Tags,
     Repos,
-    Group,
+    GroupManage,
     TagManage,
     Repo,
-    SortMenu,
+    FilterMenu,
     SettingMenu,
     ResizeHandler,
   },

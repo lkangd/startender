@@ -47,13 +47,13 @@ export default {
         filter: {
           icon: require('@img/filter-con.svg'),
           action() {
-            this.$store.commit('toggleFilterMenu', true);
+            this.$store.commit('dom/OPEN_FILTER_MENU');
           },
         },
         menus: {
           icon: require('@img/menu-con.svg'),
           action() {
-            this.$store.commit('toggleSettingMenu', true);
+            this.$store.commit('dom/OPEN_SETTING_MENU');
           },
         },
       },

@@ -1,6 +1,5 @@
 import Storage from '@/storage';
 import shortid from 'shortid';
-import Vue from 'vue';
 
 export default class GroupController {
   constructor() {
@@ -20,7 +19,7 @@ export default class GroupController {
     if (existGroup) {
       const targetGroup = this.store.groups[existGroup];
       targetGroup.repos.push(String(repoId));
-      this.save();
+      this._save();
       return existGroup;
     }
 
@@ -30,8 +29,8 @@ export default class GroupController {
     repoId && repos.push(repoId);
     const order = this.orderBase++;
 
-    Vue.set(this.store.groups, newGroupId, { name, repos, order });
-    this.save();
+    this.store.groups[newGroupId] = { name, repos, order };
+    this._save();
     return newGroupId;
   }
   /**
@@ -41,8 +40,8 @@ export default class GroupController {
    * @memberof GroupController
    */
   update({ id, name, order, repos }) {
-    Vue.set(this.store.groups, id, { name, order, repos });
-    this.save();
+    this.store.groups[id] = { name, order, repos };
+    this._save();
   }
   /**
    *
@@ -61,7 +60,7 @@ export default class GroupController {
       const targetGroup = this.store.groups[repoCurrentGroupId];
       targetGroup.repos = targetGroup.repos.filter(item => item !== String(id));
     }
-    Vue.set(this.store.repos, id, '');
+    this.store.repos[id] = '';
 
     if (group.id) {
       !this.store.groups[group.id].repos.includes(id) && this.store.groups[group.id].repos.push(String(id));
@@ -69,7 +68,7 @@ export default class GroupController {
     } else if (group.name) {
       this.store.repos[id] = this.add({ name: group.name, repoId: String(id) });
     }
-    this.save();
+    this._save();
   }
   /**
    *
@@ -80,22 +79,20 @@ export default class GroupController {
   delete(id) {
     const { repos, name } = this.store.groups[id];
     repos.forEach(repoId => {
-      Vue.set(this.store.repos, repoId, '');
       delete this.store.repos[repoId];
     });
     this.nameMap[name] = '';
     delete this.nameMap[name];
-    Vue.set(this.store.groups, id, '');
     delete this.store.groups[id];
-    this.save();
+    this._save();
   }
   clear() {
     this.orderBase = 0;
     this.nameMap = {};
     this.store = { groups: {}, repos: {} };
-    this.save();
+    this._save();
   }
-  initOrder() {
+  _initOrder() {
     const orders = [];
     for (const key in this.store.groups) {
       if (this.store.groups.hasOwnProperty(key)) {
@@ -108,7 +105,7 @@ export default class GroupController {
       this.orderBase = lastOrder + 1;
     }
   }
-  initNameMap() {
+  _initNameMap() {
     this.nameMap = {};
     for (const key in this.store.groups) {
       if (this.store.groups.hasOwnProperty(key)) {
@@ -117,7 +114,7 @@ export default class GroupController {
       }
     }
   }
-  clearEmpty() {
+  _clearEmpty() {
     for (const key in this.store.groups) {
       if (this.store.groups.hasOwnProperty(key) && this.store.groups[key].repos.length === 0) {
         this.delete(key);
@@ -126,11 +123,11 @@ export default class GroupController {
   }
   async init() {
     const result = await Storage.loadState(this);
-    this.initNameMap();
-    this.initOrder();
+    this._initNameMap();
+    this._initOrder();
     return result;
   }
-  save() {
+  _save() {
     return Storage.saveState(this);
   }
   async revertStore(backupData) {
@@ -150,6 +147,6 @@ export default class GroupController {
         }
       }
     }
-    await this.save();
+    await this._save();
   }
 }

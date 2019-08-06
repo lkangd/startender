@@ -1,9 +1,9 @@
 <template>
   <div
-    @click.self="$store.commit('toggleFilterMenu', false)"
-    class="sort-menu"
+    @click.self="$store.commit('dom/CLOSE_FILTER_MENU')"
+    class="filter-menu"
   >
-    <div class="sort-menu__panel">
+    <div class="filter-menu__panel">
       <ul @click="handleMenuClick($event)">
         <li class="title">Sort</li>
         <li
@@ -39,7 +39,7 @@
 import { mapState } from 'vuex';
 
 export default {
-  name: 'sort-menu',
+  name: 'filter-menu',
   data() {
     return {
       sortWays: [
@@ -79,8 +79,8 @@ export default {
       this.$filters.setSorter(item.filterName);
       this.$store.commit('changeSortingWay', item.id);
       this.$store.commit('filterStarredRepos');
-      this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
-      this.$store.commit('updateGroupsBar', this.$groups.store.groups);
+      this.$store.commit('updateUnGroupRepoIds');
+      this.$store.dispatch('group/UPDATE_BARS');
     },
     changeLanguages(key) {
       if (key) {
@@ -90,12 +90,12 @@ export default {
       }
       this.$store.commit('changeFilterLanguage', key);
       this.$store.commit('filterStarredRepos');
-      this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
-      this.$store.commit('updateGroupsBar', this.$groups.store.groups);
+      this.$store.commit('updateUnGroupRepoIds');
+      this.$store.dispatch('group/UPDATE_BARS');
     },
     handleMenuClick($event) {
       if ($event.target.dataset.menuItem) {
-        this.$store.commit('toggleFilterMenu', false);
+        this.$store.commit('dom/CLOSE_FILTER_MENU');
       }
     },
   },
@@ -103,7 +103,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-.sort-menu {
+.filter-menu {
   position: fixed;
   top: 0;
   left: 0;

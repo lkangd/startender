@@ -1,6 +1,5 @@
 import Storage from '@/storage';
 import shortid from 'shortid';
-import Vue from 'vue';
 
 export default class TagController {
   constructor() {
@@ -18,7 +17,7 @@ export default class TagController {
     if (existTag) {
       const targetTag = this.store.tags[existTag];
       targetTag.repos.push(String(repoId));
-      this.save();
+      this._save();
       return existTag;
     }
 
@@ -26,13 +25,13 @@ export default class TagController {
     this.nameMap[name] = newTagId;
     const repos = [];
     repoId && repos.push(repoId);
-    Vue.set(this.store.tags, newTagId, { name, repos });
-    this.save();
+    this.store.tags[newTagId] = { name, repos };
+    this._save();
     return newTagId;
   }
   update({ id, name, repos }) {
-    Vue.set(this.store.tags, id, { name, repos });
-    this.save();
+    this.store.tags[id] = { name, repos };
+    this._save();
   }
   /**
    *
@@ -49,7 +48,7 @@ export default class TagController {
         targetTag.repos = targetTag.repos.filter(tagId => tagId !== String(id));
       });
     }
-    Vue.set(this.store.repos, id, []);
+    this.store.repos[id] = [];
 
     tagNames.forEach(tagName => {
       const existTagId = this.nameMap[tagName];
@@ -61,7 +60,7 @@ export default class TagController {
         this.store.repos[id].push(finalTagId);
       }
     });
-    this.save();
+    this._save();
   }
   /**
    *
@@ -72,20 +71,19 @@ export default class TagController {
   delete(id) {
     const { repos, name } = this.store.tags[id];
     repos.forEach(repoId => {
-      Vue.set(this.store.repos, repoId, this.store.repos[repoId].filter(tagId => tagId !== id));
+      this.store.repos[repoId] = this.store.repos[repoId].filter(tagId => tagId !== id);
     });
     this.nameMap[name] = '';
     delete this.nameMap[name];
-    Vue.set(this.store.tags, id, '');
     delete this.store.tags[id];
-    this.save();
+    this._save();
   }
-  clear() {
+  _clear() {
     this.nameMap = {};
     this.store = { tags: {}, repos: {} };
-    this.save();
+    this._save();
   }
-  initNameMap() {
+  _initNameMap() {
     this.nameMap = {};
     for (const key in this.store.tags) {
       if (this.store.tags.hasOwnProperty(key)) {
@@ -94,7 +92,7 @@ export default class TagController {
       }
     }
   }
-  clearEmpty() {
+  _clearEmpty() {
     for (const key in this.store.tags) {
       if (this.store.tags.hasOwnProperty(key) && this.store.tags[key].repos.length === 0) {
         this.delete(key);
@@ -103,8 +101,8 @@ export default class TagController {
   }
   async init() {
     const result = await Storage.loadState(this);
-    this.clearEmpty();
-    this.initNameMap();
+    this._clearEmpty();
+    this._initNameMap();
     return result;
   }
   async revertStore(backupData) {
@@ -127,9 +125,9 @@ export default class TagController {
         }
       }
     }
-    await this.save();
+    await this._save();
   }
-  save() {
+  _save() {
     return Storage.saveState(this);
   }
 }

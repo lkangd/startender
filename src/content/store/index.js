@@ -1,23 +1,28 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+
+import domModule from './modules/dom';
+import groupModule from './modules/group';
+import tagModule from './modules/tag';
+import remarkModule from './modules/remark';
+
 import deepFreeze from '@/utils/deep-freeze';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
+  modules: {
+    dom: domModule,
+    group: groupModule,
+    tag: tagModule,
+    remark: remarkModule,
+  },
   state: {
     starredReposOrigin: [],
     starredRepos: [],
     starredRepoIds: [],
     unGroupRepoIds: [],
     repoEdit: {},
-    tagsBar: [],
-    groupsBar: [],
-    showRepoEdit: false,
-    showFilterMenu: false,
-    showGroupEdit: false,
-    showTagManage: false,
-    showSettingMenu: false,
     filtedTagId: Infinity,
     accessToken: '',
     filterController: {},
@@ -79,58 +84,14 @@ export default new Vuex.Store({
         state.starredRepoIds.push(String(repo.id));
       }
     },
-    updateUnGroupRepoIds(state, groupedRepos) {
-      state.unGroupRepoIds = state.starredRepoIds.filter(id => !groupedRepos[id]);
+    updateUnGroupRepoIds(state) {
+      state.unGroupRepoIds = state.starredRepoIds.filter(id => !state.group.controller.store.repos[id]);
     },
     setRepoEdit(state, repo) {
       state.repoEdit = repo;
     },
-    toggleRepoEdit(state, status) {
-      state.showRepoEdit = !!status;
-    },
-    toggleTagManage(state, status) {
-      state.showTagManage = !!status;
-    },
-    toggleGroupEdit(state, status) {
-      state.showGroupEdit = !!status;
-    },
-    toggleFilterMenu(state, status) {
-      state.showFilterMenu = !!status;
-    },
-    toggleSettingMenu(state, status) {
-      state.showSettingMenu = !!status;
-    },
     updateFilteredTagId(state, tagId) {
       state.filtedTagId = tagId;
-    },
-    updateTagsBar(state, tags) {
-      state.tagsBar = [];
-      for (const key in tags) {
-        if (tags.hasOwnProperty(key)) {
-          const tag = tags[key];
-          state.tagsBar.push({ id: key, name: tag.name, repos: tag.repos });
-        }
-      }
-      state.tagsBar.sort((a, b) => {
-        if (b.repos.length === a.repos.length) {
-          return a.name.localeCompare(b.name);
-        } else {
-          return b.repos.length - a.repos.length;
-        }
-      });
-    },
-    updateGroupsBar(state, groups) {
-      const groupsBarOpenStatus = state.groupsBar.reduce((res, group) => ((res[group.id] = group.open), res), {});
-      state.groupsBar = [];
-      for (const key in groups) {
-        if (groups.hasOwnProperty(key)) {
-          let { name, order, repos, open } = groups[key];
-          repos = state.starredRepoIds.filter(repoId => repos.includes(repoId));
-          open = repos.length ? groupsBarOpenStatus[key] : false;
-          state.groupsBar[order] = { id: key, name, repos, order, open };
-        }
-      }
-      state.groupsBar = state.groupsBar.filter(Boolean);
     },
     installFilterController(state, controller) {
       state.filterController = controller;

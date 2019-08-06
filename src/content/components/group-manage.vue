@@ -1,22 +1,22 @@
 <template>
-  <div class="group">
-    <div class="group__panel">
-      <h3 class="group__title">
+  <div class="group-manage">
+    <div class="group-manage__panel">
+      <h3 class="group-manage__title">
         <span>编辑组</span>
-        <button @click="$store.commit('toggleGroupEdit', false)">
+        <button @click="$store.commit('dom/CLOSE_GROUP_MANAGE')">
           <svg v-html="require('@img/close-con.svg')" />
         </button>
       </h3>
-      <div class="group__list">
-        <div class="group__list--item">
+      <div class="group-manage__list">
+        <div class="group-manage__list--item">
           <svg
             @click="addGroup"
-            class="group__list--item-add"
+            class="group-manage__list--item-add"
             v-html="require('@img/group-add.svg')"
           />
           <input
             @keyup.enter="addGroup"
-            class="group__list--item-input"
+            class="group-manage__list--item-input"
             maxlength="20"
             placeholder="输入组名并回车确定..."
             type="text"
@@ -26,26 +26,26 @@
       </div>
       <SlickList
         :pressDelay="100"
-        class="group__list"
+        class="group-manage__list"
         lockAxis="y"
         v-model="groups"
       >
         <SlickItem
           :index="index"
           :key="index"
-          class="group__list--item"
+          class="group-manage__list--item"
           v-for="(group, index) in groups"
         >
           <svg
             @click="deleteGroup(group, index)"
-            class="group__list--item-delete"
+            class="group-manage__list--item-delete"
             v-html="require('@img/group-delete.svg')"
           />
           <input
             :ref="`groupNameInput${index}`"
             @blur="modifyGroupName(group, index)"
             @keyup.enter="modifyGroupName(group, index)"
-            class="group__list--item-input"
+            class="group-manage__list--item-input"
             maxlength="20"
             placeholder="输入组名并回车确定..."
             type="text"
@@ -53,26 +53,26 @@
             v-model="group.name"
           />
           <p
-            class="group__list--item-title"
+            class="group-manage__list--item-title"
             v-else
           >
             <span>{{ `${group.name}(${group.repos.length})` }}</span>
             <svg
               @click="editGroup(group, index)"
-              class="group__list--item-edit"
+              class="group-manage__list--item-edit"
               v-html="require('@img/group-edit.svg')"
             />
           </p>
           <svg
-            class="group__list--item-drag"
+            class="group-manage__list--item-drag"
             v-html="require('@img/drag-con.svg')"
           />
         </SlickItem>
       </SlickList>
-      <div class="group__operate">
+      <div class="group-manage__operate">
         <button
           @click="save"
-          class="group__operate--btn"
+          class="group-manage__operate--btn"
         >保存</button>
       </div>
     </div>
@@ -86,7 +86,7 @@ import { mapState } from 'vuex';
 import { cloneDeep } from 'lodash';
 
 export default {
-  name: 'group',
+  name: 'group-manage',
   data() {
     return {
       newGroupName: '',
@@ -96,15 +96,12 @@ export default {
     };
   },
   watch: {
-    groupsBar: {
+    '$store.state.group.bars': {
       immediate: true,
       handler(newVal) {
         this.groups = cloneDeep(newVal);
       },
     },
-  },
-  computed: {
-    ...mapState(['showGroupEdit', 'groupsBar']),
   },
   methods: {
     modifyGroupName(group, index) {
@@ -137,14 +134,14 @@ export default {
         if (newGroup.name === '' || newGroup.name.trim() === '') {
           return;
         }
-        newGroup.id = this.$groups.add({ name: newGroup.name });
+        this.$store.dispatch('group/ADD', { name: newGroup.name });
       });
-      this.deletingGroups.forEach(groupId => this.$groups.delete(groupId));
-      this.groups.forEach(({ id, name, repos }, order) => this.$groups.update({ id, name, repos, order }));
+      this.deletingGroups.forEach(groupId => this.$store.dispatch('group/DELETE', groupId));
+      this.groups.forEach(({ id, name, repos }, order) => this.$store.dispatch('group/UPDATE', { id, name, repos, order }));
 
-      this.$store.commit('updateGroupsBar', this.$groups.store.groups);
-      this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
-      this.$store.commit('toggleGroupEdit', false);
+      this.$store.dispatch('group/UPDATE_BARS');
+      this.$store.commit('updateUnGroupRepoIds');
+      this.$store.commit('dom/CLOSE_GROUP_MANAGE');
     },
   },
   components: {
@@ -155,7 +152,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-.group {
+.group-manage {
   position: fixed;
   top: 0;
   left: 0;
@@ -218,7 +215,7 @@ export default {
       background-color: #fff;
       cursor: pointer;
       &:hover {
-        .group__list--item-edit {
+        .group-manage__list--item-edit {
           display: inline-block;
         }
       }

@@ -1,8 +1,8 @@
 <template>
   <div
-    :class="{ open }"
-    @click="toggle(false)"
-    @mouseenter="toggle(true)"
+    :class="{ open: $store.state.dom.showPanel }"
+    @click="$store.commit('dom/CLOSE_PANEL')"
+    @mouseenter="$store.commit('dom/OPEN_PANEL')"
     class="toggle"
   >
     <svg
@@ -28,17 +28,6 @@ export default {
     loading: {
       type: Boolean,
       default: false,
-    },
-  },
-  data() {
-    return {
-      open: true,
-    };
-  },
-  methods: {
-    toggle(bool) {
-      this.open = bool;
-      this.$emit('toggle', bool);
     },
   },
 };

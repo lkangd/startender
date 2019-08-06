@@ -62,8 +62,8 @@
         <p
           class="repos__item--memos"
           v-highlight="highlightText"
-          v-if="remarks[repoId]"
-        >备注: {{ remarks[repoId] }}</p>
+          v-if="$store.getters['remark/store'][repoId] && $store.state.remark.affectedRepo !== repoId"
+        >备注: {{ $store.getters['remark/store'][repoId] }}</p>
       </li>
     </template>
   </ul>
@@ -90,22 +90,14 @@ export default {
   },
   data() {
     return {
-      remarks: {},
       tags: {},
     };
   },
   watch: {
-    $remarks: {
+    '$store.state.tag.controller.store': {
       immediate: true,
       handler(newVal) {
-        this.remarks = newVal.store;
-      },
-    },
-    $tags: {
-      immediate: true,
-      handler(newVal) {
-        this.tags = newVal.store;
-        this.tagNames = newVal.tagNames;
+        this.tags = newVal;
       },
     },
   },
@@ -115,7 +107,7 @@ export default {
   methods: {
     edit(item, index) {
       this.$store.commit('setRepoEdit', item);
-      this.$store.commit('toggleRepoEdit', true);
+      this.$store.commit('dom/OPEN_REPO_EDIT');
     },
   },
 };

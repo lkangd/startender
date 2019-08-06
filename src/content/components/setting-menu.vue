@@ -24,7 +24,7 @@ export default {
               getStarredRepos().then(starredRepos => {
                 this.$store.commit('updateStarredReposOrigin', starredRepos);
                 this.$store.commit('filterStarredRepos');
-                this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
+                this.$store.commit('updateUnGroupRepoIds');
                 this.$toast.success('数据已刷新');
               });
             },
@@ -34,13 +34,13 @@ export default {
           {
             name: '标签管理',
             action() {
-              this.$store.commit('toggleTagManage', true);
+              this.$store.commit('dom/OPEN_TAG_MANAGE');
             },
           },
           {
             name: '分组管理',
             action() {
-              this.$store.commit('toggleGroupEdit', true);
+              this.$store.commit('dom/OPEN_GROUP_MANAGE');
             },
           },
         ],
@@ -48,9 +48,9 @@ export default {
           {
             name: '备份数据',
             action() {
-              const { tags } = this.$tags.store;
-              const { groups } = this.$groups.store;
-              const remarks = this.$remarks.store;
+              const { tags } = this.$store.state.tag.controller.store;
+              const { groups } = this.$store.state.group.controller.store;
+              const remarks = this.$store.state.remark.controller.store;
               const data = JSON.stringify({ groups, tags, remarks }, null, 2);
               const file = new File([data], 'github-stars-helper.json', { type: 'text/plain;charset=utf-8' });
               saveAs(file);
@@ -98,7 +98,7 @@ export default {
                   children: this.unGroupRepoIds.map(this._generateBookmarkItem),
                 });
 
-              const { groups } = this.$groups.store;
+              const { groups } = this.$store.state.group.controller.store;
               this._generateBookmarks(data, groups, '分组');
             },
           },
@@ -109,7 +109,7 @@ export default {
                 name: 'Github Starred Repos Tags',
                 children: [],
               };
-              const { tags } = this.$tags.store;
+              const { tags } = this.$store.state.tag.controller.store;
               this._generateBookmarks(data, tags, '标签');
             },
           },
@@ -166,11 +166,11 @@ export default {
   methods: {
     handleClick(evt) {
       if (evt.target !== evt.currentTarget) return;
-      this.$store.commit('toggleSettingMenu', false);
+      this.$store.commit('dom/CLOSE_SETTING_MENU');
     },
     handleAction(action) {
       typeof action === 'function' && action.call(this);
-      this.$store.commit('toggleSettingMenu', false);
+      this.$store.commit('dom/CLOSE_SETTING_MENU');
     },
     handleUpload(evt) {
       const loading = this.$loading('数据恢复中...');
@@ -179,11 +179,15 @@ export default {
 
       reader.onload = async evt => {
         const data = JSON.parse(evt.target.result);
-        this.$store.commit('toggleSettingMenu', false);
+        this.$store.commit('dom/CLOSE_SETTING_MENU');
         const restoreData = Storage.data;
         await Storage.setState();
         try {
-          await Promise.all([this.$remarks.revertStore(data.remarks), this.$tags.revertStore(data.tags), this.$groups.revertStore(data.groups)]);
+          await Promise.all([
+            this.$store.dispatch('group/REVERT_STORE', data.groups),
+            this.$store.dispatch('tag/REVERT_STORE', data.tags),
+            this.$store.dispatch('remark/REVERT_STORE', data.remarks),
+          ]);
           loading.update('插件重启中...');
           this.$toast.success('恢复管理数据成功');
           window.location.reload();

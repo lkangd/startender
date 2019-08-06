@@ -3,7 +3,7 @@
     <div class="tag-manage__wrapper">
       <h3 class="tag-manage__title">
         <span>管理标签</span>
-        <button @click="$store.commit('toggleTagManage', false)">
+        <button @click="$store.commit('dom/CLOSE_TAG_MANAGE')">
           <svg v-html="require('@img/close-con.svg')" />
         </button>
       </h3>
@@ -83,15 +83,12 @@ export default {
     };
   },
   watch: {
-    tagsBar: {
+    '$store.state.tag.bars': {
       immediate: true,
       handler(newVal) {
         this.tags = cloneDeep(newVal);
       },
     },
-  },
-  computed: {
-    ...mapState(['tagsBar']),
   },
   methods: {
     modifyTagName(tag, index) {
@@ -118,18 +115,18 @@ export default {
     save() {
       this.willAddTags.forEach(({ name }) => {
         if (name === '' || name.trim() === '') return;
-        this.$tags.add({ name });
+        this.$store.dispatch('tag/ADD', { name });
       });
-      this.willDeleteTags.forEach(tagId => this.$tags.delete(tagId));
-      this.tags.forEach(({ id, name, repos }) => this.$tags.update({ id, name, repos }));
+      this.willDeleteTags.forEach(tagId => this.$store.dispatch('tag/DELETE', tagId));
+      this.tags.forEach(({ id, name, repos }) => this.$store.dispatch('tag/UPDATE', { id, name, repos }));
 
       this.$filters.setTagFilter(false);
       this.$store.commit('filterStarredRepos');
       this.$store.commit('updateFilteredTagId', Infinity);
-      this.$store.commit('updateTagsBar', this.$tags.store.tags);
-      this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
-      this.$store.commit('updateGroupsBar', this.$groups.store.groups);
-      this.$store.commit('toggleTagManage', false);
+      this.$store.dispatch('tag/UPDATE_BARS');
+      this.$store.commit('updateUnGroupRepoIds');
+      this.$store.dispatch('group/UPDATE_BARS');
+      this.$store.commit('dom/CLOSE_TAG_MANAGE');
     },
   },
 };

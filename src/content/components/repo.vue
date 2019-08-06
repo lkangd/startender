@@ -185,19 +185,19 @@ export default {
     };
   },
   watch: {
-    showRepoEdit: {
+    '$store.state.dom.showRepoEdit': {
       immediate: true,
       handler(newVal) {
-        if (this.$tags.store.repos[this.repoEdit.id]) {
-          this.tags = this.$tags.store.repos[this.repoEdit.id].map(tagId => ({ id: tagId, name: this.$tags.store.tags[tagId].name }));
+        if (this.$store.state.tag.controller.store.repos[this.repoEdit.id]) {
+          this.tags = this.$store.state.tag.controller.store.repos[this.repoEdit.id].map(tagId => ({ id: tagId, name: this.$store.state.tag.controller.store.tags[tagId].name }));
         } else {
           this.tags = [];
         }
         this.remark = this.remarks[this.repoEdit.id];
 
-        const currentGroupId = this.$groups.store.repos[this.repoEdit.id];
+        const currentGroupId = this.$store.state.group.controller.store.repos[this.repoEdit.id];
         if (currentGroupId) {
-          this.currentGroup = { id: currentGroupId, name: this.$groups.store.groups[currentGroupId].name };
+          this.currentGroup = { id: currentGroupId, name: this.$store.state.group.controller.store.groups[currentGroupId].name };
         } else {
           this.currentGroup = '';
         }
@@ -205,35 +205,32 @@ export default {
     },
   },
   computed: {
-    ...mapState(['showRepoEdit', 'repoEdit', 'groupsBar']),
+    ...mapState(['repoEdit']),
     remarks() {
-      return this.$remarks.store;
-    },
-    tagNames() {
-      return this.$tags.tagNames;
+      return this.$store.state.remark.controller.store;
     },
     filtedExistTags() {
       const result = [];
       const currentTagIds = this.tags.map(item => item.id);
       if (this.newTag.length) {
-        for (const key in this.$tags.store.tags) {
+        for (const key in this.$store.state.tag.controller.store.tags) {
           if (
             !currentTagIds.includes(key) &&
-            this.$tags.store.tags.hasOwnProperty(key) &&
-            this.$tags.store.tags[key].name.toLowerCase().startsWith(this.newTag.toLowerCase()) &&
-            !this.tags.find(tag => tag.name === this.$tags.store.tags[key].name)
+            this.$store.state.tag.controller.store.tags.hasOwnProperty(key) &&
+            this.$store.state.tag.controller.store.tags[key].name.toLowerCase().startsWith(this.newTag.toLowerCase()) &&
+            !this.tags.find(tag => tag.name === this.$store.state.tag.controller.store.tags[key].name)
           ) {
-            result.push({ id: key, name: this.$tags.store.tags[key].name });
+            result.push({ id: key, name: this.$store.state.tag.controller.store.tags[key].name });
           }
         }
       } else {
-        for (const key in this.$tags.store.tags) {
+        for (const key in this.$store.state.tag.controller.store.tags) {
           if (
-            this.$tags.store.tags.hasOwnProperty(key) &&
+            this.$store.state.tag.controller.store.tags.hasOwnProperty(key) &&
             !currentTagIds.includes(key) &&
-            !this.tags.find(tag => tag.name === this.$tags.store.tags[key].name)
+            !this.tags.find(tag => tag.name === this.$store.state.tag.controller.store.tags[key].name)
           ) {
-            result.push({ id: key, name: this.$tags.store.tags[key].name });
+            result.push({ id: key, name: this.$store.state.tag.controller.store.tags[key].name });
           }
         }
       }
@@ -241,11 +238,11 @@ export default {
     },
     filtedExistGroups() {
       if (this.currentGroup.id) {
-        return this.groupsBar.filter(item => item.id !== this.currentGroup.id);
+        return this.$store.state.group.bars.filter(item => item.id !== this.currentGroup.id);
       } else if (this.currentGroup.length) {
-        return this.groupsBar.filter(item => item.name.toLowerCase().startsWith(this.currentGroup.toLowerCase()));
+        return this.$store.state.group.bars.filter(item => item.name.toLowerCase().startsWith(this.currentGroup.toLowerCase()));
       } else {
-        return this.groupsBar;
+        return this.$store.state.group.bars;
       }
     },
   },
@@ -254,11 +251,11 @@ export default {
       // handle unstar
       this.unStar && this.$store.commit('unstarRepo', this.repoEdit);
 
-      this.$store.commit('toggleRepoEdit', false);
+      this.$store.commit('dom/CLOSE_REPO_EDIT');
       this.$store.commit('filterStarredRepos');
-      this.$store.commit('updateTagsBar', this.$tags.store.tags);
-      this.$store.commit('updateUnGroupRepoIds', this.$groups.store.repos);
-      this.$store.commit('updateGroupsBar', this.$groups.store.groups);
+      this.$store.dispatch('tag/UPDATE_BARS');
+      this.$store.commit('updateUnGroupRepoIds');
+      this.$store.dispatch('group/UPDATE_BARS');
     },
     async toggleStar() {
       const loading = this.$loading({ mountPoint: '.repo__panel', text: '提交中...' });
@@ -282,13 +279,13 @@ export default {
     },
     async save() {
       // handle group
-      if (this.$groups.store.repos[this.repoEdit.id] && !this.currentGroup) {
+      if (this.$store.state.group.controller.store.repos[this.repoEdit.id] && !this.currentGroup) {
         // delete group
         const changedRepo = {
           id: this.repoEdit.id,
           group: {},
         };
-        this.$groups.updateRepo(changedRepo);
+        this.$store.dispatch('group/UPDATE_REPO', changedRepo);
       }
       if (this.currentGroup) {
         this.setGroup(this.currentGroup);
@@ -299,17 +296,17 @@ export default {
             name: this.currentGroup.name,
           },
         };
-        this.$groups.updateRepo(changedRepo);
+        this.$store.dispatch('group/UPDATE_REPO', changedRepo);
       }
       // handle tag
       if (this.newTag.length) {
         this.addNewTag(this.newTag);
       }
       const changedTag = { id: this.repoEdit.id, tagNames: this.tags.map(item => item.name) };
-      this.$tags.updateRepo(changedTag);
+      this.$store.dispatch('tag/UPDATE_REPO', changedTag);
       // handle remark
       if (this.remark !== this.remarks[this.repoEdit.id]) {
-        this.$remarks.update({ id: this.repoEdit.id, content: this.remark.trim() });
+        this.$store.dispatch('remark/UPDATE', { id: this.repoEdit.id, content: this.remark.trim() });
       }
       this.close();
     },
