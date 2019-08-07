@@ -1,3 +1,6 @@
+const UN_GROUPED_ID = Symbol('UN_GROUPED_ID');
+const ALL_GROUPED_ID = Symbol('ALL_GROUPED_ID');
+
 export default {
   namespaced: true,
   state: {
@@ -26,22 +29,39 @@ export default {
     UPDATE_REPO({ state }, repo) {
       state.controller.updateRepo(repo);
     },
-    async REVERT_STORE({ dispatch, commit, getters, rootState, state }, store) {
+    async REVERT_STORE({ state }, store) {
       await state.controller.revertStore(store);
     },
-    UPDATE_BARS({ dispatch, commit, getters, rootState, state }) {
+    UPDATE_BARS({ state, rootState }) {
       const { groups } = state.controller.store;
       const barsOpenStatus = state.bars.reduce((res, bar) => ((res[bar.id] = bar.open), res), {});
-      state.bars = [];
-      for (const key in groups) {
-        if (groups.hasOwnProperty(key)) {
-          let { name, order, repos, open } = groups[key];
+      const bars = [];
+      for (const id in groups) {
+        if (groups.hasOwnProperty(id)) {
+          let { name, order, repos, open } = groups[id];
           repos = rootState.starredRepoIds.filter(repoId => repos.includes(repoId));
-          open = repos.length ? barsOpenStatus[key] : false;
-          state.bars[order] = { id: key, name, repos, order, open };
+          open = repos.length ? barsOpenStatus[id] : false;
+          bars[order] = { id, name, repos, order, open };
         }
       }
-      state.bars = state.bars.filter(Boolean);
+
+      state.bars = bars.filter(Boolean);
+      const unGroup = {
+        id: UN_GROUPED_ID,
+        name: '未分组',
+        repos: rootState.starredRepoIds.filter(id => !state.controller.store.repos[id]),
+        order: -1,
+        open: barsOpenStatus[UN_GROUPED_ID],
+      };
+      const allGroup = {
+        id: ALL_GROUPED_ID,
+        name: '所有',
+        repos: rootState.starredRepoIds,
+        order: state.bars.length,
+        open: barsOpenStatus[ALL_GROUPED_ID],
+      };
+      state.bars.push(allGroup);
+      state.bars.unshift(unGroup);
     },
   },
 };

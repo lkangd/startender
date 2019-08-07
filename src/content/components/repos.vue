@@ -15,17 +15,17 @@
           class="repos__item--name"
           target="_blank"
         >
-          <span v-highlight="highlightText">{{ starredRepos[repoId].owner.login }}</span>
+          <span v-highlight="$store.state.dom.highlightText">{{ starredRepos[repoId].owner.login }}</span>
           /
           <span
             class="bold"
-            v-highlight="highlightText"
+            v-highlight="$store.state.dom.highlightText"
           >{{ starredRepos[repoId].name }}</span>
         </a>
         <br />
         <p
           class="repos__item--desc"
-          v-highlight="highlightText"
+          v-highlight="$store.state.dom.highlightText"
         >{{ starredRepos[repoId].description }}</p>
         <div class="repos__item--attrs">
           <p
@@ -61,7 +61,7 @@
         </template>
         <p
           class="repos__item--memos"
-          v-highlight="highlightText"
+          v-highlight="$store.state.dom.highlightText"
           v-if="$store.getters['remark/store'][repoId] && $store.state.remark.affectedRepo !== repoId"
         >备注: {{ $store.getters['remark/store'][repoId] }}</p>
       </li>
@@ -82,10 +82,6 @@ export default {
       default() {
         return [];
       },
-    },
-    highlightText: {
-      type: String,
-      default: '',
     },
   },
   data() {

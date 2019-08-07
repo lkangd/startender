@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="{ open: $store.state.dom.showPanel }"
+    :class="{ 'toggle--open': $store.state.dom.showPanel }"
     @click="$store.commit('dom/CLOSE_PANEL')"
     @mouseenter="$store.commit('dom/OPEN_PANEL')"
     class="toggle"
@@ -52,15 +52,13 @@ export default {
   border-right: none;
   border-radius: 4px 0px 0px 4px;
   box-shadow: 0 3px 12px rgba(27, 31, 35, 0.15);
-  &.open {
-    .toggle {
-      &__icon {
-        transform: rotateZ(0);
-      }
-    }
-  }
   cursor: pointer;
   user-select: none;
+  &--open {
+    .toggle__icon {
+      transform: rotateZ(0);
+    }
+  }
   &__loading {
     width: 18px;
     height: 18px;

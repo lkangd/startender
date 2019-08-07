@@ -21,7 +21,6 @@ export default new Vuex.Store({
     starredReposOrigin: [],
     starredRepos: [],
     starredRepoIds: [],
-    unGroupRepoIds: [],
     repoEdit: {},
     filtedTagId: Infinity,
     accessToken: '',
@@ -83,9 +82,6 @@ export default new Vuex.Store({
         state.starredRepos[repo.id] = repo;
         state.starredRepoIds.push(String(repo.id));
       }
-    },
-    updateUnGroupRepoIds(state) {
-      state.unGroupRepoIds = state.starredRepoIds.filter(id => !state.group.controller.store.repos[id]);
     },
     setRepoEdit(state, repo) {
       state.repoEdit = repo;

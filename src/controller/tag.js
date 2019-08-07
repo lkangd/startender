@@ -117,7 +117,6 @@ export default class TagController {
     const result = await Storage.loadState(this);
     this._clearEmpty();
     this._initNameMap();
-    console.log('this.store :', this.store);
     return result;
   }
   async revertStore(backupData) {

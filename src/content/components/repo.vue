@@ -237,13 +237,15 @@ export default {
       return result;
     },
     filtedExistGroups() {
+      let groups;
       if (this.currentGroup.id) {
-        return this.$store.state.group.bars.filter(item => item.id !== this.currentGroup.id);
+        groups = this.$store.state.group.bars.filter(item => item.id !== this.currentGroup.id);
       } else if (this.currentGroup.length) {
-        return this.$store.state.group.bars.filter(item => item.name.toLowerCase().startsWith(this.currentGroup.toLowerCase()));
+        groups = this.$store.state.group.bars.filter(item => item.name.toLowerCase().startsWith(this.currentGroup.toLowerCase()));
       } else {
-        return this.$store.state.group.bars;
+        groups = this.$store.state.group.bars;
       }
+      return groups.slice(1, -1);
     },
   },
   methods: {
@@ -254,7 +256,6 @@ export default {
       this.$store.commit('dom/CLOSE_REPO_EDIT');
       this.$store.commit('filterStarredRepos');
       this.$store.dispatch('tag/UPDATE_BARS');
-      this.$store.commit('updateUnGroupRepoIds');
       this.$store.dispatch('group/UPDATE_BARS');
     },
     async toggleStar() {

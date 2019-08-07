@@ -24,7 +24,7 @@ export default {
               getStarredRepos().then(starredRepos => {
                 this.$store.commit('updateStarredReposOrigin', starredRepos);
                 this.$store.commit('filterStarredRepos');
-                this.$store.commit('updateUnGroupRepoIds');
+                this.$store.dispatch('group/UPDATE_BARS');
                 this.$toast.success('数据已刷新');
               });
             },
@@ -91,13 +91,6 @@ export default {
                 name: 'Github Starred Repos Groups',
                 children: [],
               };
-              // ungroup
-              this.unGroupRepoIds.length &&
-                data.children.push({
-                  name: '未分组',
-                  children: this.unGroupRepoIds.map(this._generateBookmarkItem),
-                });
-
               const { groups } = this.$store.state.group.controller.store;
               this._generateBookmarks(data, groups, '分组');
             },
@@ -161,7 +154,7 @@ export default {
     );
   },
   computed: {
-    ...mapState(['starredRepos', 'unGroupRepoIds']),
+    ...mapState(['starredRepos']),
   },
   methods: {
     handleClick(evt) {
@@ -203,14 +196,14 @@ export default {
       };
       reader.readAsText(file);
     },
-    _generateBookmarks(data, sorts, type) {
-      for (const key in sorts) {
-        if (sorts.hasOwnProperty(key)) {
-          const sort = sorts[key];
-          sort.repos.length &&
+    _generateBookmarks(data, source, type) {
+      for (const key in source) {
+        if (source.hasOwnProperty(key)) {
+          const folder = source[key];
+          folder.repos.length &&
             data.children.push({
-              name: sort.name,
-              children: sort.repos.map(this._generateBookmarkItem),
+              name: folder.name,
+              children: folder.repos.map(this._generateBookmarkItem),
             });
         }
       }

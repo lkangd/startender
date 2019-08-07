@@ -99,7 +99,7 @@ export default {
     '$store.state.group.bars': {
       immediate: true,
       handler(newVal) {
-        this.groups = cloneDeep(newVal);
+        this.groups = cloneDeep(newVal).slice(1, -1);
       },
     },
   },
@@ -140,7 +140,6 @@ export default {
       this.groups.forEach(({ id, name, repos }, order) => this.$store.dispatch('group/UPDATE', { id, name, repos, order }));
 
       this.$store.dispatch('group/UPDATE_BARS');
-      this.$store.commit('updateUnGroupRepoIds');
       this.$store.commit('dom/CLOSE_GROUP_MANAGE');
     },
   },

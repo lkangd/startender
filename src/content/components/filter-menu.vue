@@ -4,31 +4,28 @@
     class="filter-menu"
   >
     <div class="filter-menu__panel">
-      <ul @click="handleMenuClick($event)">
-        <li class="title">Sort</li>
+      <ul>
+        <li class="filter-menu__title">Sort</li>
         <li
-          :class="{ active: sortingWay === item.id }"
+          :class="{ 'filter-menu__item--active': sortingWay === item.id }"
           :key="item.id"
           @click="changeSortingWay(item)"
-          class="content"
-          data-menu-item="true"
+          class="filter-menu__item"
           v-for="item in sortWays"
         >{{ item.text }}</li>
-        <li class="title">Languages</li>
+        <li class="filter-menu__title">Languages</li>
         <li
-          :class="{ active: filterLanguage === '' }"
+          :class="{ 'filter-menu__item--active': filterLanguage === '' }"
           @click="changeLanguages('')"
-          class="content"
-          data-menu-item="true"
+          class="filter-menu__item"
         >所有</li>
         <li
-          :class="{ active: filterLanguage === key }"
-          :key="key"
-          @click="changeLanguages(key)"
-          class="content"
-          data-menu-item="true"
-          v-for="(value, key) in languages"
-        >{{ `${key} (${value})` }}</li>
+          :class="{ 'filter-menu__item--active': filterLanguage === language }"
+          :key="language"
+          @click="changeLanguages(language)"
+          class="filter-menu__item"
+          v-for="(count, language) in languages"
+        >{{ `${language} (${count})` }}</li>
       </ul>
     </div>
   </div>
@@ -79,8 +76,8 @@ export default {
       this.$filters.setSorter(item.filterName);
       this.$store.commit('changeSortingWay', item.id);
       this.$store.commit('filterStarredRepos');
-      this.$store.commit('updateUnGroupRepoIds');
       this.$store.dispatch('group/UPDATE_BARS');
+      this.$store.commit('dom/CLOSE_FILTER_MENU');
     },
     changeLanguages(key) {
       if (key) {
@@ -90,13 +87,8 @@ export default {
       }
       this.$store.commit('changeFilterLanguage', key);
       this.$store.commit('filterStarredRepos');
-      this.$store.commit('updateUnGroupRepoIds');
       this.$store.dispatch('group/UPDATE_BARS');
-    },
-    handleMenuClick($event) {
-      if ($event.target.dataset.menuItem) {
-        this.$store.commit('dom/CLOSE_FILTER_MENU');
-      }
+      this.$store.commit('dom/CLOSE_FILTER_MENU');
     },
   },
 };
@@ -110,7 +102,6 @@ export default {
   right: 0;
   bottom: 0;
   z-index: 99;
-  // background-color: rgba(27, 31, 35, 0.5);
   background-color: transparent;
   &__panel {
     position: absolute;
@@ -150,26 +141,26 @@ export default {
       overflow-y: scroll;
       scroll-behavior: smooth;
     }
-    .title {
-      margin: 10px 0;
-      font-size: 13px;
-      font-weight: bold;
-      color: #24292e;
+  }
+  &__title {
+    margin: 10px 0;
+    font-size: 13px;
+    font-weight: bold;
+    color: #24292e;
+  }
+  &__item {
+    padding-left: 5px;
+    font-size: 13px;
+    line-height: 2;
+    color: #586069;
+    border-radius: 3px;
+    cursor: pointer;
+    &--active {
+      color: #fff;
+      background-color: #0366d6 !important;
     }
-    .content {
-      padding-left: 5px;
-      font-size: 13px;
-      line-height: 2;
-      color: #586069;
-      border-radius: 3px;
-      cursor: pointer;
-      &.active {
-        background-color: #0366d6 !important;
-        color: #fff;
-      }
-      &:hover {
-        background-color: #eaecef;
-      }
+    &:hover {
+      background-color: #eaecef;
     }
   }
 }

@@ -1,9 +1,8 @@
 <template>
-  <div class="headers">
+  <div class="header-bar">
     <!-- search -->
     <div class="search">
       <input
-        :value="value"
         @input="handleInput($event)"
         class="search__input"
         placeholder="输入仓库名或作者名..."
@@ -34,13 +33,7 @@ import { mapState } from 'vuex';
 import { debounce } from 'lodash';
 
 export default {
-  name: 'headers',
-  props: {
-    value: {
-      type: String,
-      default: '',
-    },
-  },
+  name: 'header-bar',
   data() {
     return {
       operations: {
@@ -75,14 +68,22 @@ export default {
       typeof action === 'function' && action.call(this);
     },
     handleInput: debounce(function($event) {
-      this.$emit('update:value', $event.target.value);
+      const { value } = $event.target;
+      if (!value || !value.trim().length) {
+        this.$filters.setSearchFilter(false);
+      } else {
+        this.$filters.setSearchFilter(true, value.trim());
+      }
+      this.$store.commit('dom/UPDATE_HEIGHT_TEXT', value.trim());
+      this.$store.commit('filterStarredRepos');
+      this.$store.dispatch('group/UPDATE_BARS');
     }, 300),
   },
 };
 </script>
 
 <style scoped lang="less">
-.headers {
+.header-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -36,7 +36,6 @@ export default {
       }
       this.$store.commit('filterStarredRepos');
       this.$store.commit('updateFilteredTagId', id);
-      this.$store.commit('updateUnGroupRepoIds');
       this.$store.dispatch('group/UPDATE_BARS');
     },
   },
@@ -49,6 +48,7 @@ export default {
   padding: 0 @side-padding;
   height: 46px;
   line-height: 56px;
+  border-left: 1px solid #e1e4e8;
   border-bottom: 1px solid #d1d5db;
   overflow-x: scroll;
   overflow-y: hidden;

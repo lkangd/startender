@@ -129,7 +129,6 @@ export default {
       this.$store.commit('filterStarredRepos');
       this.$store.commit('updateFilteredTagId', Infinity);
       this.$store.dispatch('tag/UPDATE_BARS');
-      this.$store.commit('updateUnGroupRepoIds');
       this.$store.dispatch('group/UPDATE_BARS');
       this.$store.commit('dom/CLOSE_TAG_MANAGE');
     },

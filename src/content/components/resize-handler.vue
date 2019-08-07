@@ -27,7 +27,7 @@ export default {
     resize(evt) {
       if (!resizable) return;
       const { movementX } = evt;
-      movementX && this.$emit('resize', -movementX);
+      movementX && this.$store.commit('dom/UPDATE_SIDEBAR_WIDTH', -movementX);
     },
     stopResize() {
       resizable = false;

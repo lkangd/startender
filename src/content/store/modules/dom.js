@@ -1,3 +1,11 @@
+import { debounce } from 'lodash';
+
+const SIDEBAR_MIN_WIDTH = 400;
+const TOGGLE_BTN_WIDTH = 30;
+const saveSidebarWidth = debounce(function(width) {
+  localStorage.setItem('stars_helper.sidebar_width', width);
+}, 300);
+
 export default {
   namespaced: true,
   state: {
@@ -7,8 +15,20 @@ export default {
     showGroupManage: false,
     showFilterMenu: false,
     showSettingMenu: false,
+    sidebarWidth: localStorage.getItem('stars_helper.sidebar_width') || SIDEBAR_MIN_WIDTH,
+    highlightText: '',
   },
   mutations: {
+    UPDATE_HEIGHT_TEXT(state, text) {
+      state.highlightText = text;
+    },
+    UPDATE_SIDEBAR_WIDTH(state, offsetX) {
+      const newWidth = +state.sidebarWidth + offsetX;
+      if (newWidth + TOGGLE_BTN_WIDTH > document.documentElement.clientWidth) return;
+
+      state.sidebarWidth = Math.max(SIDEBAR_MIN_WIDTH, newWidth);
+      saveSidebarWidth(state.sidebarWidth);
+    },
     OPEN_PANEL(state) {
       state.showPanel = true;
     },
