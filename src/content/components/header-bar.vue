@@ -6,9 +6,17 @@
         @input="handleInput($event)"
         class="search__input"
         placeholder="输入仓库名或作者名..."
+        v-model="value"
+      />
+      <svg
+        @click="(value = ''), $store.dispatch('repo/SET_FILTER_SEARCH', '')"
+        class="search__icon search__icon--clear"
+        v-html="require('@img/input-clear-con.svg')"
+        v-if="value.length"
       />
       <svg
         class="search__icon"
+        v-else
         v-html="require('@img/search-key-slash.svg')"
       />
     </div>
@@ -36,6 +44,7 @@ export default {
   name: 'header-bar',
   data() {
     return {
+      value: '',
       operations: {
         filter: {
           icon: require('@img/filter-con.svg'),
@@ -70,7 +79,7 @@ export default {
     handleAction(action) {
       typeof action === 'function' && action.call(this);
     },
-    handleInput: debounce(function($event) {
+    handleInput: debounce(function($event = { target: { value: '' } }) {
       const { value } = $event.target;
       this.$store.dispatch('repo/SET_FILTER_SEARCH', value.trim());
     }, 300),
@@ -115,6 +124,11 @@ export default {
       margin: 0 8px;
       width: 19px;
       height: 20px;
+      &--clear {
+        width: 12px;
+        height: 12px;
+        cursor: pointer;
+      }
     }
   }
   .operations {
