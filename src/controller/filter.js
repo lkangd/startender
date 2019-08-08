@@ -1,113 +1,102 @@
+const SORTER_METHODS = {
+  name: (aRepo, bRepo) => aRepo.name.localeCompare(bRepo.name),
+  forkCount: (aRepo, bRepo) => aRepo.forkCount - bRepo.forkCount,
+  pushedAt: (aRepo, bRepo) => new Date(bRepo.pushedAt) - new Date(aRepo.pushedAt),
+  nameWithOwner: (aRepo, bRepo) => aRepo.nameWithOwner.localeCompare(bRepo.nameWithOwner),
+  totalCount: (aRepo, bRepo) => bRepo.stargazers.totalCount - aRepo.stargazers.totalCount,
+};
+
 export default class FilterController {
-  constructor(groups, tags, remarks) {
-    this.groups = groups;
+  constructor() {
+    this.sorters = {
+      method: null,
+    };
+    this.filterOptions = {
+      language: null,
+      search: null,
+      tag: null,
+    };
+  }
+  init({ groups, tags, remarks }) {
     this.remarks = remarks;
+    this.groups = groups;
     this.tags = tags;
-    this.currentSorter = input => input;
-    this.currentFilter = {
-      filterByLanguages: input => input,
-      filterBySearch: input => input,
-      filterByTags: input => input,
-    };
   }
-  setSorter(sorterName, ...args) {
-    const sorterFunction = this[sorterName];
-    if (sorterFunction instanceof Function) {
-      this.currentSorter = sorterFunction.call(this, ...args);
-    } else {
-      this.currentSorter = input => input;
+  run(repos) {
+    const result = [];
+    for (let i = 0, repo; (repo = repos[i++]); ) {
+      this._verdict(repo) && result.push(repo);
     }
-  }
-  setTagFilter(on, ...args) {
-    if (on) {
-      this.currentFilter.filterByTags = this.filterByTags.call(this, ...args);
-    } else {
-      this.currentFilter.filterByTags = input => input;
+    if (typeof SORTER_METHODS[this.sorters.method] === 'function') {
+      return result.sort(SORTER_METHODS[this.sorters.method]);
     }
+    return result;
   }
-  setLanguageFilter(on, ...args) {
-    if (on) {
-      this.currentFilter.filterByLanguages = this.filterByLanguages.call(this, ...args);
-    } else {
-      this.currentFilter.filterByLanguages = input => input;
-    }
+  setSorter(sorterMethod) {
+    this.sorters.method = sorterMethod;
   }
-  setSearchFilter(on, ...args) {
-    if (on) {
-      this.currentFilter.filterBySearch = this.filterBySearch.call(this, ...args);
-    } else {
-      this.currentFilter.filterBySearch = input => input;
-    }
+  setTag(tagId) {
+    this.filterOptions.tag = tagId;
   }
-  sortByForks() {
-    return function(target) {
-      return target.sort((aRepo, bRepo) => aRepo.forkCount - bRepo.forkCount);
-    };
+  setLanguage(language) {
+    this.filterOptions.language = language;
   }
-  sortByStars() {
-    return function(target) {
-      return target.sort((aRepo, bRepo) => bRepo.stargazers.totalCount - aRepo.stargazers.totalCount);
-    };
+  setSearch(search) {
+    this.filterOptions.search = search;
   }
-  sortByUpdate() {
-    return function(target) {
-      return target.sort((aRepo, bRepo) => new Date(bRepo.pushedAt) - new Date(aRepo.pushedAt));
-    };
+  _verdict(repo) {
+    return this._verdictLanguage(repo) && this._verdictSearch(repo) && this._verdictTag(repo);
   }
-  sortByOwnerName() {
-    return function(target) {
-      return target.sort((aRepo, bRepo) => aRepo.nameWithOwner.localeCompare(bRepo.nameWithOwner));
-    };
-  }
-  sortByRepoName() {
-    return function(target) {
-      return target.sort((aRepo, bRepo) => aRepo.name.localeCompare(bRepo.name));
-    };
-  }
-  filterByLanguages(language) {
-    return function(target) {
-      return target.filter(({ primaryLanguage }) => primaryLanguage && primaryLanguage.name === language);
-    };
-  }
-  filterByTags(tagId) {
-    if (tagId) {
-      const tag = this.tags.store.tags[tagId];
-      return function(target) {
-        return target.filter(repo => tag.repos.includes(String(repo.id)));
-      };
-    } else {
+  _verdictTag(repo) {
+    if (String(this.filterOptions.tag) === 'Symbol(UN_TAGED_ID)') {
       const { tags } = this.tags.store;
-      return function(target) {
-        const repos = [];
-        for (const id in tags) {
-          if (tags.hasOwnProperty(id)) {
-            const tag = tags[id];
-            repos.push(...tag.repos);
-          }
+      const repos = [];
+      for (const id in tags) {
+        if (tags.hasOwnProperty(id)) {
+          const tag = tags[id];
+          repos.push(...tag.repos);
         }
-        return target.filter(repo => !repos.includes(String(repo.id)));
-      };
+      }
+      if (repos.includes(repo.id)) {
+        return false;
+      }
+    } else if (String(this.filterOptions.tag) === 'Symbol(ALL_TAGED_ID)') {
+      return true;
+    } else if (this.filterOptions.tag) {
+      const tag = this.tags.store.tags[this.filterOptions.tag];
+      if (!tag.repos.includes(repo.id)) {
+        return false;
+      }
     }
+    return true;
   }
-  filterBySearch(searchKey) {
-    const searchRegexp = new RegExp(
-      `.*${searchKey
-        .trim()
-        .split(/\ +/g)
-        .join('.*')}.*`,
-      'i',
-    );
-    const { remarks } = this;
-    return function(target) {
-      return target.filter(repo => {
-        const repoRemark = remarks.store[repo.id];
-        return (
-          searchRegexp.test(repo.nameWithOwner) ||
-          searchRegexp.test(repo.description) ||
-          searchRegexp.test(repo.name) ||
-          searchRegexp.test(repoRemark)
-        );
-      });
-    };
+  _verdictSearch(repo) {
+    if (this.filterOptions.search) {
+      const searchRegexp = new RegExp(
+        `.*${this.filterOptions.search
+          .trim()
+          .split(/\ +/g)
+          .join('.*')}.*`,
+        'i',
+      );
+      const repoRemark = this.remarks.store[repo.id];
+      if (
+        !searchRegexp.test(repo.nameWithOwner) &&
+        !searchRegexp.test(repo.description) &&
+        !searchRegexp.test(repo.name) &&
+        !searchRegexp.test(repoRemark)
+      ) {
+        return false;
+      }
+    }
+    return true;
+  }
+  _verdictLanguage(repo) {
+    if (this.filterOptions.language) {
+      if (!repo.primaryLanguage || repo.primaryLanguage.name !== this.filterOptions.language) {
+        return false;
+      }
+    }
+    return true;
   }
 }

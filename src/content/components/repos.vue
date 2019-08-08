@@ -2,68 +2,68 @@
   <ul class="repos">
     <template v-if="reposID.length">
       <li
-        :key="repoId"
+        :key="repoID"
         class="repos__item"
-        v-for="(repoId, index) in repoIds"
+        v-for="(repoID, index) in repoIDs"
       >
         <button
-          @click="edit(reposFiltered[repoId], index)"
+          @click="edit(reposFiltered[repoID], index)"
           class="repos__item--edit"
         >编辑</button>
         <a
-          :href="reposFiltered[repoId].url"
+          :href="reposFiltered[repoID].url"
           class="repos__item--name"
           target="_blank"
         >
-          <span v-highlight="$store.state.dom.highlightText">{{ reposFiltered[repoId].owner.login }}</span>
+          <span v-highlight="$store.state.dom.highlightText">{{ reposFiltered[repoID].owner.login }}</span>
           /
           <span
             class="bold"
             v-highlight="$store.state.dom.highlightText"
-          >{{ reposFiltered[repoId].name }}</span>
+          >{{ reposFiltered[repoID].name }}</span>
         </a>
         <br />
         <p
           class="repos__item--desc"
           v-highlight="$store.state.dom.highlightText"
-        >{{ reposFiltered[repoId].description }}</p>
+        >{{ reposFiltered[repoID].description }}</p>
         <div class="repos__item--attrs">
           <p
             class="repos__item--attrs-language"
-            v-if="reposFiltered[repoId].primaryLanguage"
+            v-if="reposFiltered[repoID].primaryLanguage"
           >
             <span
-              :style="`background-color: ${ reposFiltered[repoId].primaryLanguage.color }`"
+              :style="`background-color: ${ reposFiltered[repoID].primaryLanguage.color }`"
               class="language-dot"
             ></span>
-            <span>{{ reposFiltered[repoId].primaryLanguage.name }}</span>
+            <span>{{ reposFiltered[repoID].primaryLanguage.name }}</span>
           </p>
           <p class="repos__item--attrs-stars">
             <svg v-html="require('@img/github-star.svg')" />
-            <span>{{ reposFiltered[repoId].stargazers.totalCount | formatNumber }}</span>
+            <span>{{ reposFiltered[repoID].stargazers.totalCount | formatNumber }}</span>
           </p>
           <p class="repos__item--attrs-forks">
             <svg v-html="require('@img/github-fork.svg')" />
-            <span>{{ reposFiltered[repoId].forkCount | formatNumber }}</span>
+            <span>{{ reposFiltered[repoID].forkCount | formatNumber }}</span>
           </p>
           <p class="repos__item--attrs-update">
-            <span>Updated {{ reposFiltered[repoId].pushedAt | formatUpdate }}</span>
+            <span>Updated {{ reposFiltered[repoID].pushedAt | formatUpdate }}</span>
           </p>
         </div>
-        <template v-if="tags.repos && tags.repos[repoId]">
+        <template v-if="tags.repos && tags.repos[repoID]">
           <ul class="repos__item--tags">
             <li
               :key="index"
               class="repos__item--tags-item"
-              v-for="(tagId, index) in tags.repos[repoId]"
-            >{{ tags.tags[tagId].name }}</li>
+              v-for="(tagID, index) in tags.repos[repoID]"
+            >{{ tags.tags[tagID].name }}</li>
           </ul>
         </template>
         <p
           class="repos__item--memos"
           v-highlight="$store.state.dom.highlightText"
-          v-if="$store.getters['remark/store'][repoId] && $store.state.remark.affectedRepo !== repoId"
-        >备注: {{ $store.getters['remark/store'][repoId] }}</p>
+          v-if="$store.getters['remark/store'][repoID] && $store.state.remark.affectedRepo !== repoID"
+        >备注: {{ $store.getters['remark/store'][repoID] }}</p>
       </li>
     </template>
   </ul>
@@ -77,7 +77,7 @@ import dayjs from 'dayjs';
 export default {
   name: 'repos',
   props: {
-    repoIds: {
+    repoIDs: {
       type: Array,
       default() {
         return [];

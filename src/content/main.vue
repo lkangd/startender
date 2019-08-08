@@ -35,28 +35,14 @@ import TagManage from './components/tag-manage';
 import SettingMenu from './components/setting-menu';
 import Toggle from './components/toggle';
 
-import { getStarredRepos } from '@/github/api-v4';
-
 const hideGlobalScrollBar = () => $('body').addClass('stars-helper-hide-scroll-bar');
 
 export default {
   name: 'stars-helper',
-  mounted() {
+  async mounted() {
     hideGlobalScrollBar();
-    if (localStorage.getItem('stars_helper.starred_repos')) {
-      this.$toast('使用缓存列表数据');
-      const reposBase = JSON.parse(localStorage.getItem('stars_helper.starred_repos'));
-      const reposLanguage = JSON.parse(localStorage.getItem('stars_helper.languages_count'));
-      this.$store.commit('repo/UPDATE_REPOS_BASE', { reposBase, reposLanguage, cache: true });
-      this.$store.commit('repo/FILTER_REPOS');
-    } else {
-      getStarredRepos().then(reposBase => {
-        this.$store.commit('repo/UPDATE_REPOS_BASE', reposBase);
-        this.$store.commit('repo/FILTER_REPOS');
-      });
-    }
-    this.$store.dispatch('tag/UPDATE_BARS');
-    this.$store.dispatch('group/UPDATE_BARS');
+    await this.$store.dispatch('repo/UPDATE_REPOS_BASE');
+    this.$toast('使用缓存列表数据');
   },
   components: {
     Authorize,

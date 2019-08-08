@@ -20,13 +20,9 @@ export default {
         [
           {
             name: '刷新数据',
-            action() {
-              getStarredRepos().then(reposBase => {
-                this.$store.commit('repo/UPDATE_REPOS_BASE', reposBase);
-                this.$store.commit('repo/FILTER_REPOS');
-                this.$store.dispatch('group/UPDATE_BARS');
-                this.$toast.success('数据已刷新');
-              });
+            async action() {
+              await this.$store.dispatch('repo/UPDATE_REPOS_BASE', false);
+              this.$toast.success('数据已刷新');
             },
           },
         ],
@@ -213,11 +209,11 @@ export default {
         this.$toast.success(`导出${type}书签成功!`);
       });
     },
-    _generateBookmarkItem(repoId) {
-      if (this.reposFiltered[repoId]) {
+    _generateBookmarkItem(repoID) {
+      if (this.reposFiltered[repoID]) {
         return {
-          name: this.reposFiltered[repoId].nameWithOwner,
-          url: this.reposFiltered[repoId].url,
+          name: this.reposFiltered[repoID].nameWithOwner,
+          url: this.reposFiltered[repoID].url,
         };
       }
     },

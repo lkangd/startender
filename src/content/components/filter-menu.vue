@@ -7,22 +7,22 @@
       <ul>
         <li class="filter-menu__title">Sort</li>
         <li
-          :class="{ 'filter-menu__item--active': sorteredMethod === item.id }"
-          :key="item.id"
-          @click="changeSortingWay(item)"
+          :class="{ 'filter-menu__item--active': sortedMethod == item.sortedMethod }"
+          :key="index"
+          @click="changeSortedMethod(item)"
           class="filter-menu__item"
-          v-for="item in sortWays"
+          v-for="(item, index) in sortWays"
         >{{ item.text }}</li>
         <li class="filter-menu__title">Languages</li>
         <li
           :class="{ 'filter-menu__item--active': filteredLanguage === '' }"
-          @click="changeLanguages('')"
+          @click="changeLanguage('')"
           class="filter-menu__item"
         >所有</li>
         <li
           :class="{ 'filter-menu__item--active': filteredLanguage === language }"
           :key="language"
-          @click="changeLanguages(language)"
+          @click="changeLanguage(language)"
           class="filter-menu__item"
           v-for="(count, language) in reposLanguage"
         >{{ `${language} (${count})` }}</li>
@@ -41,53 +41,42 @@ export default {
     return {
       sortWays: [
         {
-          id: 0,
           text: '最近标记',
-          filterName: '',
+          sortedMethod: '',
         },
         {
-          id: 1,
           text: '最近活动',
-          filterName: 'sortByUpdate',
+          sortedMethod: 'pushedAt',
         },
         {
-          id: 2,
           text: '最多标记',
-          filterName: 'sortByStars',
+          sortedMethod: 'totalCount',
         },
         {
-          id: 3,
           text: '作者名正序',
-          filterName: 'sortByOwnerName',
+          sortedMethod: 'nameWithOwner',
         },
         {
-          id: 4,
           text: '仓库名正序',
-          filterName: 'sortByRepoName',
+          sortedMethod: 'name',
         },
       ],
     };
   },
   computed: {
-    ...mapState(['reposLanguage', 'filteredLanguage', 'sorteredMethod']),
+    ...mapState({
+      reposLanguage: state => state.repo.reposLanguage,
+      filteredLanguage: state => state.repo.filteredLanguage,
+      sortedMethod: state => state.repo.sortedMethod,
+    }),
   },
   methods: {
-    changeSortingWay(item) {
-      this.$filters.setSorter(item.filterName);
-      this.$store.commit('repo/UPDATE_SORTERED_METHOD', item.id);
-      this.$store.commit('repo/FILTER_REPOS');
-      this.$store.dispatch('group/UPDATE_BARS');
+    changeSortedMethod({ sortedMethod }) {
+      this.$store.dispatch('repo/SET_SORTER', sortedMethod);
       this.$store.commit('dom/CLOSE_FILTER_MENU');
     },
-    changeLanguages(language) {
-      if (language) {
-        this.$filters.setLanguageFilter(true, language);
-      } else {
-        this.$filters.setLanguageFilter(false);
-      }
-      this.$store.commit('repo/UPDATE_FILTERED_LANGUAGE', language);
-      this.$store.commit('repo/FILTER_REPOS');
-      this.$store.dispatch('group/UPDATE_BARS');
+    changeLanguage(language) {
+      this.$store.dispatch('repo/SET_FILTER_LANGUAGE', language);
       this.$store.commit('dom/CLOSE_FILTER_MENU');
     },
   },

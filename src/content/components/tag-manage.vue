@@ -122,14 +122,10 @@ export default {
         if (name === '' || name.trim() === '') return;
         this.$store.dispatch('tag/ADD', { name });
       });
-      this.willDeleteTags.forEach(tagId => this.$store.dispatch('tag/DELETE', tagId));
+      this.willDeleteTags.forEach(tagID => this.$store.dispatch('tag/DELETE', tagID));
       this.tags.forEach(({ id, name, repos }) => this.$store.dispatch('tag/UPDATE', { id, name, repos }));
 
-      this.$filters.setTagFilter(false);
-      this.$store.commit('repo/FILTER_REPOS');
-      this.$store.commit('repo/UPDATE_FILTERED_TAG_ID', Infinity);
-      this.$store.dispatch('tag/UPDATE_BARS');
-      this.$store.dispatch('group/UPDATE_BARS');
+      this.$store.dispatch('repo/SET_FILTER_TAG');
       this.$store.commit('dom/CLOSE_TAG_MANAGE');
     },
   },

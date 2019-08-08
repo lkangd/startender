@@ -1,3 +1,4 @@
+import { getStarredRepos } from '@/github/api-v4';
 import deepFreeze from '@/utils/deep-freeze';
 
 export default {
@@ -6,30 +7,89 @@ export default {
     repoEdit: null,
     reposID: [],
     reposBase: [],
-    reposFiltered: [],
+    reposFiltered: {},
     reposLanguage: [],
 
+    controller: null,
     filteredTagID: Infinity,
     filteredLanguage: '',
-    filterController: {},
-    sorteredMethod: 0,
+    sortedMethod: 0,
   },
   mutations: {
     UPDATE_REPO_EDIT(state, repo) {
       state.repoEdit = repo;
     },
-    UPDATE_REPOS_BASE(state, repos) {
-      if (repos.cache) {
-        state.reposBase = deepFreeze(repos.reposBase, false);
-        state.reposLanguage = repos.reposLanguage;
-        return;
+  },
+  actions: {
+    FILTER_REPOS({ state, dispatch }) {
+      const repos = state.controller.run(state.reposBase);
+
+      state.reposFiltered = {};
+      state.reposID = [];
+      for (let i = 0; i < repos.length; i++) {
+        const repo = repos[i];
+        state.reposFiltered[repo.id] = repo;
+        state.reposID.push(String(repo.id));
       }
+      dispatch('group/UPDATE_BARS', state.reposID, { root: true });
+      dispatch('tag/UPDATE_BARS', null, { root: true });
+    },
+    UNSTAR_REPO({ state, dispatch }, repo) {
+      state.reposBase.splice(repo.repoIndex, 1);
+      state.reposLanguage[repo.primaryLanguage] && state.reposLanguage[repo.primaryLanguage.name]--;
+      localStorage.setItem('stars_helper.starred_repos', JSON.stringify(state.reposBase));
+      localStorage.setItem('stars_helper.languages_count', JSON.stringify(state.reposLanguage));
+      dispatch('FILTER_REPOS');
+    },
+    SET_SORTER({ state, dispatch }, sortedMethod) {
+      state.controller.setSorter(sortedMethod);
+      state.sortedMethod = sortedMethod;
+      dispatch('FILTER_REPOS');
+    },
+    SET_FILTER_LANGUAGE({ state, dispatch }, language) {
+      state.controller.setLanguage(language);
+      state.filteredLanguage = language;
+      dispatch('FILTER_REPOS');
+    },
+    SET_FILTER_SEARCH({ state, dispatch }, search) {
+      state.controller.setSearch(search);
+      dispatch('FILTER_REPOS');
+    },
+    SET_FILTER_TAG({ state, dispatch, commit }, tagID) {
+      state.controller.setTag(tagID);
+      state.filteredTagID = tagID;
+      dispatch('FILTER_REPOS');
+      commit('tag/UPDATE_FILTERED_TAG_ID', tagID, { root: true });
+    },
+    async INSTALL_CONTROLLER({ state, rootState }, controller) {
+      if (state.isInstalled) return;
+
+      await controller.init({
+        tags: rootState.tag.controller,
+        groups: rootState.group.controller,
+        remarks: rootState.remark.controller,
+      });
+      state.controller = controller;
+      state.isInstalled = true;
+    },
+    async UPDATE_REPOS_BASE({ state, dispatch }, useCache = true) {
+      if (useCache) {
+        const reposBase = JSON.parse(localStorage.getItem('stars_helper.starred_repos'));
+        const reposLanguage = JSON.parse(localStorage.getItem('stars_helper.languages_count'));
+        if (reposBase && reposLanguage) {
+          state.reposBase = deepFreeze(reposBase, false);
+          state.reposLanguage = reposLanguage;
+          dispatch('FILTER_REPOS');
+          return;
+        }
+      }
+
+      const repos = await getStarredRepos();
       const reposBase = [];
       state.reposLanguage = {};
-      for (let i = 0; i < repos.length; i++) {
-        const repo = repos[i].node;
-        repo.starredAt = repos[i].starredAt;
-        repo.repoIndex = i;
+      for (let i = 0, repo; (repo = repos[i]); ) {
+        repo = repo.node;
+        repo.repoIndex = i++;
         reposBase.push(Object.freeze(repo));
         if (!repo.primaryLanguage) continue;
         if (state.reposLanguage[repo.primaryLanguage.name]) {
@@ -41,44 +101,7 @@ export default {
       state.reposBase = reposBase;
       localStorage.setItem('stars_helper.starred_repos', JSON.stringify(state.reposBase));
       localStorage.setItem('stars_helper.languages_count', JSON.stringify(state.reposLanguage));
-    },
-    UNSTAR_REPO(state, repo) {
-      state.reposBase.splice(repo.repoIndex, 1);
-      state.reposLanguage[repo.primaryLanguage] && state.reposLanguage[repo.primaryLanguage.name]--;
-      localStorage.setItem('stars_helper.starred_repos', JSON.stringify(state.reposBase));
-      localStorage.setItem('stars_helper.languages_count', JSON.stringify(state.reposLanguage));
-    },
-    FILTER_REPOS(state) {
-      let repos = state.reposBase.slice();
-      repos = state.filterController.currentSorter(repos);
-
-      for (const key in state.filterController.currentFilter) {
-        if (state.filterController.currentFilter.hasOwnProperty(key)) {
-          const filter = state.filterController.currentFilter[key];
-          repos = filter(repos);
-        }
-      }
-
-      state.reposFiltered = {};
-      state.reposID = [];
-      for (let i = 0; i < repos.length; i++) {
-        const repo = repos[i];
-        state.reposFiltered[repo.id] = repo;
-        state.reposID.push(String(repo.id));
-      }
-    },
-    UPDATE_FILTERED_TAG_ID(state, tagId) {
-      state.filteredTagID = tagId;
-    },
-    INSTALL_FILTER_CONTROLLER(state, controller) {
-      state.filterController = controller;
-    },
-    UPDATE_SORTERED_METHOD(state, id) {
-      state.sorteredMethod = id;
-    },
-    UPDATE_FILTERED_LANGUAGE(state, language) {
-      state.filteredLanguage = language;
+      dispatch('FILTER_REPOS');
     },
   },
-  actions: {},
 };

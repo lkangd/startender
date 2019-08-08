@@ -1,22 +1,12 @@
 <template>
   <ol class="tag-bar">
     <li
-      :class="{ 'tag-bar__item--active': $store.state.filteredTagID === Infinity }"
-      @click="handleClick(Infinity)"
-      class="tag-bar__item"
-    >全部</li>
-    <li
-      :class="{ 'tag-bar__item--active': $store.state.filteredTagID === item.id }"
+      :class="{ 'tag-bar__item--active': $store.state.tag.filteredTagID === item.id }"
       :key="index"
       @click="handleClick(item.id)"
       class="tag-bar__item"
       v-for="(item, index) in $store.state.tag.bars"
-    >{{ `${item.name}(${item.repos.length})` }}</li>
-    <li
-      :class="{ 'tag-bar__item--active': $store.state.filteredTagID === -Infinity }"
-      @click="handleClick(-Infinity)"
-      class="tag-bar__item"
-    >无标签</li>
+    >{{ `${item.name}(${ item.count || item.repos.length})` }}</li>
   </ol>
 </template>
 
@@ -26,17 +16,8 @@
 export default {
   name: 'tag-bar',
   methods: {
-    handleClick(id) {
-      if (id === -Infinity) {
-        this.$filters.setTagFilter(true, '');
-      } else if (id === Infinity) {
-        this.$filters.setTagFilter(false);
-      } else {
-        this.$filters.setTagFilter(true, id);
-      }
-      this.$store.commit('repo/FILTER_REPOS');
-      this.$store.commit('repo/UPDATE_FILTERED_TAG_ID', id);
-      this.$store.dispatch('group/UPDATE_BARS');
+    handleClick(tagID) {
+      this.$store.dispatch('repo/SET_FILTER_TAG', tagID);
     },
   },
 };

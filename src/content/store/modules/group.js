@@ -39,7 +39,8 @@ export default {
       for (const id in groups) {
         if (groups.hasOwnProperty(id)) {
           let { name, order, repos, open } = groups[id];
-          repos = rootState.repo.reposID.filter(repoId => repos.includes(repoId));
+          // sort && filter
+          repos = rootState.repo.reposID.filter(repoID => repos.includes(repoID));
           open = repos.length ? barsOpenStatus[id] : false;
           bars[order] = { id, name, repos, order, open };
         }

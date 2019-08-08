@@ -53,15 +53,15 @@ export default {
     };
   },
   watch: {
-    sorteredMethod(newVal) {
-      this.$set(this.operations.filter, 'active', !!(this.sorteredMethod || this.filteredLanguage));
+    sortedMethod(newVal) {
+      this.$set(this.operations.filter, 'active', !!(this.sortedMethod || this.filteredLanguage));
     },
     filteredLanguage(newVal) {
-      this.$set(this.operations.filter, 'active', !!(this.sorteredMethod || this.filteredLanguage));
+      this.$set(this.operations.filter, 'active', !!(this.sortedMethod || this.filteredLanguage));
     },
   },
   computed: {
-    ...mapState(['sorteredMethod', 'filteredLanguage']),
+    ...mapState(['sortedMethod', 'filteredLanguage']),
   },
   methods: {
     handleAction(action) {
@@ -69,14 +69,8 @@ export default {
     },
     handleInput: debounce(function($event) {
       const { value } = $event.target;
-      if (!value || !value.trim().length) {
-        this.$filters.setSearchFilter(false);
-      } else {
-        this.$filters.setSearchFilter(true, value.trim());
-      }
+      this.$store.dispatch('repo/SET_FILTER_SEARCH', value.trim());
       this.$store.commit('dom/UPDATE_HEIGHT_TEXT', value.trim());
-      this.$store.commit('repo/FILTER_REPOS');
-      this.$store.dispatch('group/UPDATE_BARS');
     }, 300),
   },
 };

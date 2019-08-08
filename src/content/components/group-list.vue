@@ -17,7 +17,7 @@
         />
       </div>
       <repos
-        :repoIds="group.repos"
+        :repoIDs="group.repos"
         v-if="group.open"
       />
     </li>

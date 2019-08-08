@@ -189,18 +189,18 @@ export default {
       immediate: true,
       handler(newVal) {
         if (this.$store.state.tag.controller.store.repos[this.repoEdit.id]) {
-          this.tags = this.$store.state.tag.controller.store.repos[this.repoEdit.id].map(tagId => ({
-            id: tagId,
-            name: this.$store.state.tag.controller.store.tags[tagId].name,
+          this.tags = this.$store.state.tag.controller.store.repos[this.repoEdit.id].map(tagID => ({
+            id: tagID,
+            name: this.$store.state.tag.controller.store.tags[tagID].name,
           }));
         } else {
           this.tags = [];
         }
         this.remark = this.remarks[this.repoEdit.id];
 
-        const currentGroupId = this.$store.state.group.controller.store.repos[this.repoEdit.id];
-        if (currentGroupId) {
-          this.currentGroup = { id: currentGroupId, name: this.$store.state.group.controller.store.groups[currentGroupId].name };
+        const currentGroupID = this.$store.state.group.controller.store.repos[this.repoEdit.id];
+        if (currentGroupID) {
+          this.currentGroup = { id: currentGroupID, name: this.$store.state.group.controller.store.groups[currentGroupID].name };
         } else {
           this.currentGroup = '';
         }
@@ -216,11 +216,11 @@ export default {
     },
     filtedExistTags() {
       const result = [];
-      const currentTagIds = this.tags.map(item => item.id);
+      const currentTagIDs = this.tags.map(item => item.id);
       if (this.newTag.length) {
         for (const key in this.$store.state.tag.controller.store.tags) {
           if (
-            !currentTagIds.includes(key) &&
+            !currentTagIDs.includes(key) &&
             this.$store.state.tag.controller.store.tags.hasOwnProperty(key) &&
             this.$store.state.tag.controller.store.tags[key].name.toLowerCase().startsWith(this.newTag.toLowerCase()) &&
             !this.tags.find(tag => tag.name === this.$store.state.tag.controller.store.tags[key].name)
@@ -232,7 +232,7 @@ export default {
         for (const key in this.$store.state.tag.controller.store.tags) {
           if (
             this.$store.state.tag.controller.store.tags.hasOwnProperty(key) &&
-            !currentTagIds.includes(key) &&
+            !currentTagIDs.includes(key) &&
             !this.tags.find(tag => tag.name === this.$store.state.tag.controller.store.tags[key].name)
           ) {
             result.push({ id: key, name: this.$store.state.tag.controller.store.tags[key].name });
@@ -256,12 +256,11 @@ export default {
   methods: {
     close() {
       // handle unstar
-      this.unStar && this.$store.commit('repo/UNSTAR_REPO', this.repoEdit);
+      this.unStar && this.$store.dispatch('repo/UNSTAR_REPO', this.repoEdit);
 
-      this.$store.commit('dom/CLOSE_REPO_EDIT');
-      this.$store.commit('repo/FILTER_REPOS');
       this.$store.dispatch('tag/UPDATE_BARS');
       this.$store.dispatch('group/UPDATE_BARS');
+      this.$store.commit('dom/CLOSE_REPO_EDIT');
     },
     async toggleStar() {
       const loading = this.$loading({ mountPoint: '.repo__panel', text: '提交中...' });

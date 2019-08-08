@@ -1,13 +1,21 @@
+const UN_TAGED_ID = Symbol('UN_TAGED_ID');
+const ALL_TAGED_ID = Symbol('ALL_TAGED_ID');
+
 export default {
   namespaced: true,
   state: {
     controller: null,
     isInstalled: false,
+    filteredTagID: ALL_TAGED_ID,
     bars: [],
   },
-  mutations: {},
+  mutations: {
+    UPDATE_FILTERED_TAG_ID(state, tagID) {
+      state.filteredTagID = tagID;
+    },
+  },
   actions: {
-    async INSTALL_CONTROLLER({ commit, state }, controller) {
+    async INSTALL_CONTROLLER({ state }, controller) {
       if (state.isInstalled) return;
 
       await controller.init();
@@ -29,8 +37,8 @@ export default {
     async REVERT_STORE({ state }, store) {
       await state.controller.revertStore(store);
     },
-    UPDATE_BARS({ state }) {
-      const { tags } = state.controller.store;
+    UPDATE_BARS({ state, rootState }) {
+      const { tags, repos } = state.controller.store;
       state.bars = [];
       for (const id in tags) {
         if (tags.hasOwnProperty(id)) {
@@ -45,6 +53,21 @@ export default {
           return b.repos.length - a.repos.length;
         }
       });
+
+      const allTagCount = rootState.repo.reposBase.length;
+      const unTagCount = allTagCount - Object.keys(repos).length;
+      const allTag = {
+        id: ALL_TAGED_ID,
+        name: '全部',
+        count: allTagCount,
+      };
+      const unTag = {
+        id: UN_TAGED_ID,
+        name: '无标签',
+        count: unTagCount,
+      };
+      state.bars.push(unTag);
+      state.bars.unshift(allTag);
     },
   },
 };

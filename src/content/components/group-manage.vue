@@ -136,7 +136,7 @@ export default {
         }
         this.$store.dispatch('group/ADD', { name: newGroup.name });
       });
-      this.deletingGroups.forEach(groupId => this.$store.dispatch('group/DELETE', groupId));
+      this.deletingGroups.forEach(groupID => this.$store.dispatch('group/DELETE', groupID));
       this.groups.forEach(({ id, name, repos }, order) => this.$store.dispatch('group/UPDATE', { id, name, repos, order }));
 
       this.$store.dispatch('group/UPDATE_BARS');
