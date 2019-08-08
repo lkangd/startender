@@ -258,8 +258,7 @@ export default {
       if (this.unStar) {
         this.save();
       } else {
-        this.$store.dispatch('tag/UPDATE_BARS');
-        this.$store.dispatch('group/UPDATE_BARS');
+        this.$store.dispatch('repo/FILTER_REPOS');
         this.$store.commit('dom/CLOSE_REPO_EDIT');
       }
     },
@@ -319,8 +318,7 @@ export default {
       if (this.remark !== this.remarks[this.repoEdit.id]) {
         this.$store.dispatch('remark/UPDATE', { id: this.repoEdit.id, content: this.remark.trim() });
       }
-      this.$store.dispatch('tag/UPDATE_BARS');
-      this.$store.dispatch('group/UPDATE_BARS');
+      this.$store.dispatch('repo/FILTER_REPOS');
       this.$store.commit('dom/CLOSE_REPO_EDIT');
     },
     toggleExistGroups(bool) {

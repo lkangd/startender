@@ -54,8 +54,8 @@ export default {
       dispatch('FILTER_REPOS');
       commit('dom/UPDATE_HEIGHT_TEXT', search, { root: true });
     },
-    SET_FILTER_TAG({ state, dispatch, commit }, tagID) {
-      state.controller.setTag(tagID);
+    SET_FILTER_TAG({ state, dispatch, commit, rootState }, tagID) {
+      state.controller.setTag(tagID || rootState.tag.ALL_TAGED_ID);
       dispatch('FILTER_REPOS');
       commit('tag/UPDATE_FILTERED_TAG_ID', tagID, { root: true });
     },

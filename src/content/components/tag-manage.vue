@@ -88,7 +88,7 @@ export default {
     '$store.state.tag.bars': {
       immediate: true,
       handler(newVal) {
-        this.tags = cloneDeep(newVal);
+        this.tags = cloneDeep(newVal).slice(1, -1);
       },
     },
   },

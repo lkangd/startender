@@ -67,6 +67,7 @@ export default class TagController {
         this.store.repos[id].push(finalTagId);
       }
     });
+    !tagNames.length && delete this.store.repos[id];
     this._save();
   }
   /**
@@ -79,6 +80,7 @@ export default class TagController {
     const { repos, name } = this.store.tags[id];
     repos.forEach(repoId => {
       this.store.repos[repoId] = this.store.repos[repoId].filter(tagId => tagId !== id);
+      !this.store.repos[repoId].length && delete this.store.repos[repoId];
     });
     this.nameMap[name] = '';
     delete this.nameMap[name];

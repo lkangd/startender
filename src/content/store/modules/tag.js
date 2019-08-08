@@ -8,6 +8,8 @@ export default {
     controller: null,
     isInstalled: false,
     filteredTagID: ALL_TAGED_ID,
+    UN_TAGED_ID,
+    ALL_TAGED_ID,
   },
   mutations: {
     UPDATE_FILTERED_TAG_ID(state, tagID) {
