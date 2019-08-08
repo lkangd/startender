@@ -1,5 +1,12 @@
 import dayjs from 'dayjs';
 
+/**
+ *
+ *
+ * @export
+ * @param {*} value
+ * @returns
+ */
 export function formatUpdate(value) {
   const differenceYear = dayjs().year() !== dayjs(value).year();
   if (differenceYear) {
@@ -33,6 +40,13 @@ export function formatUpdate(value) {
   return `${relativeSec} seconds ago`;
 }
 
+/**
+ *
+ *
+ * @export
+ * @param {number} [value=0]
+ * @returns
+ */
 export function formatNumber(value = 0) {
   return String(value).replace(/\B(?=(\d{3})+($|\.))/g, ',');
 }

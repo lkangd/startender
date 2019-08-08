@@ -29,6 +29,12 @@ export default class TagController {
     this._save();
     return newTagId;
   }
+  /**
+   *
+   *
+   * @param {*} { id, name, repos }
+   * @memberof TagController
+   */
   update({ id, name, repos }) {
     this.store.tags[id] = { name, repos };
     this._updateNameMap({ id, name });
@@ -79,11 +85,22 @@ export default class TagController {
     delete this.store.tags[id];
     this._save();
   }
+  /**
+   *
+   *
+   * @memberof TagController
+   */
   _clear() {
     this.nameMap = {};
     this.store = { tags: {}, repos: {} };
     this._save();
   }
+  /**
+   *
+   *
+   * @param {*} { id, name }
+   * @memberof TagController
+   */
   _updateNameMap({ id, name }) {
     for (const key in this.nameMap) {
       if (this.nameMap.hasOwnProperty(key) && this.nameMap[key] === id) {
@@ -92,6 +109,11 @@ export default class TagController {
       }
     }
   }
+  /**
+   *
+   *
+   * @memberof TagController
+   */
   _initNameMap() {
     this.nameMap = {};
     for (const key in this.store.tags) {
@@ -101,6 +123,11 @@ export default class TagController {
       }
     }
   }
+  /**
+   *
+   *
+   * @memberof TagController
+   */
   _clearEmpty() {
     for (const key in this.store.tags) {
       if (this.store.tags.hasOwnProperty(key) && this.store.tags[key].repos.length === 0) {
@@ -113,12 +140,25 @@ export default class TagController {
       }
     }
   }
+  /**
+   *
+   *
+   * @returns
+   * @memberof TagController
+   */
   async init() {
     const result = await Storage.loadState(this);
     this._clearEmpty();
     this._initNameMap();
     return result;
   }
+  /**
+   *
+   *
+   * @param {*} backupData
+   * @returns
+   * @memberof TagController
+   */
   async revertStore(backupData) {
     if (typeof backupData !== 'object') {
       return Promise.reject(new Error('Wrong tags data structure!'));
@@ -141,6 +181,12 @@ export default class TagController {
     }
     await this._save();
   }
+  /**
+   *
+   *
+   * @returns
+   * @memberof TagController
+   */
   _save() {
     return Storage.saveState(this);
   }

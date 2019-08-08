@@ -53,18 +53,18 @@ export default {
     };
   },
   watch: {
-    sortedMethod(newVal) {
-      this.$set(this.operations.filter, 'active', !!(this.sortedMethod || this.filteredLanguage));
+    sortedMethodID(newVal) {
+      this.$set(this.operations.filter, 'active', !!(this.sortedMethodID || this.filteredLanguage));
     },
     filteredLanguage(newVal) {
-      this.$set(this.operations.filter, 'active', !!(this.sortedMethod || this.filteredLanguage));
+      this.$set(this.operations.filter, 'active', !!(this.sortedMethodID || this.filteredLanguage));
     },
   },
   computed: {
     ...mapState({
-      sortedMethod: state => state.repo.sortedMethod,
+      sortedMethodID: state => state.repo.sortedMethodID,
       filteredLanguage: state => state.repo.filteredLanguage,
-    })
+    }),
   },
   methods: {
     handleAction(action) {

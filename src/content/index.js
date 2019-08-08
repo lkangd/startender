@@ -2,15 +2,15 @@ import Vue from 'vue';
 import Main from './main';
 import store from './store';
 
-import FilterController from '@/controller/filter';
-import RemarkController from '@/controller/remark';
-import GroupController from '@/controller/group';
-import TagController from '@/controller/tag';
-
 import '@/assets/less';
 import $storageSync from '@/utils/storage-sync';
 import { getAccessToken } from '@/github/api-v3';
 import { isStarsTab, saveStarsTabUrl } from '@/github/utils';
+
+import TagController from '@/controller/tag';
+import GroupController from '@/controller/group';
+import RemarkController from '@/controller/remark';
+import FilterController from '@/controller/filter';
 
 import Toast from '@/content/components/toast/index';
 import Loading from '@/content/components/loading/index';
@@ -50,8 +50,8 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   store.commit('UPDATE_ACCESS_TOKEN', accessToken);
 
   await Promise.all([
-    store.dispatch('group/INSTALL_CONTROLLER', new GroupController()),
     store.dispatch('tag/INSTALL_CONTROLLER', new TagController()),
+    store.dispatch('group/INSTALL_CONTROLLER', new GroupController()),
     store.dispatch('remark/INSTALL_CONTROLLER', new RemarkController()),
   ]);
 

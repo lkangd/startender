@@ -7,12 +7,12 @@
       <ul>
         <li class="filter-menu__title">Sort</li>
         <li
-          :class="{ 'filter-menu__item--active': sortedMethod == item.sortedMethod }"
+          :class="{ 'filter-menu__item--active': sortedMethodID == item.id }"
           :key="index"
           @click="changeSortedMethod(item)"
           class="filter-menu__item"
-          v-for="(item, index) in sortWays"
-        >{{ item.text }}</li>
+          v-for="(item, index) in sorterMethods"
+        >{{ item.name }}</li>
         <li class="filter-menu__title">Languages</li>
         <li
           :class="{ 'filter-menu__item--active': filteredLanguage === '' }"
@@ -37,42 +37,17 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'filter-menu',
-  data() {
-    return {
-      sortWays: [
-        {
-          text: '最近标记',
-          sortedMethod: '',
-        },
-        {
-          text: '最近活动',
-          sortedMethod: 'pushedAt',
-        },
-        {
-          text: '最多标记',
-          sortedMethod: 'totalCount',
-        },
-        {
-          text: '作者名正序',
-          sortedMethod: 'nameWithOwner',
-        },
-        {
-          text: '仓库名正序',
-          sortedMethod: 'name',
-        },
-      ],
-    };
-  },
   computed: {
     ...mapState({
       reposLanguage: state => state.repo.reposLanguage,
       filteredLanguage: state => state.repo.filteredLanguage,
-      sortedMethod: state => state.repo.sortedMethod,
+      sortedMethodID: state => state.repo.sortedMethodID,
+      sorterMethods: state => state.repo.controller.sorterMethods,
     }),
   },
   methods: {
-    changeSortedMethod({ sortedMethod }) {
-      this.$store.dispatch('repo/SET_SORTER', sortedMethod);
+    changeSortedMethod({ id }) {
+      this.$store.dispatch('repo/SET_SORTER_METHOD', id);
       this.$store.commit('dom/CLOSE_FILTER_MENU');
     },
     changeLanguage(language) {

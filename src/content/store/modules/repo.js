@@ -11,7 +11,7 @@ export default {
     reposLanguage: [],
 
     controller: null,
-    sortedMethod: '',
+    sortedMethodID: '',
     filteredLanguage: '',
   },
   mutations: {
@@ -39,9 +39,9 @@ export default {
       localStorage.setItem('stars_helper.languages_count', JSON.stringify(state.reposLanguage));
       dispatch('FILTER_REPOS');
     },
-    SET_SORTER({ state, dispatch }, sortedMethod) {
-      state.controller.setSorter(sortedMethod);
-      state.sortedMethod = sortedMethod;
+    SET_SORTER_METHOD({ state, dispatch }, sortedMethodID) {
+      state.controller.setSorter(sortedMethodID);
+      state.sortedMethodID = sortedMethodID;
       dispatch('FILTER_REPOS');
     },
     SET_FILTER_LANGUAGE({ state, dispatch }, language) {

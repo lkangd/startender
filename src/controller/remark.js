@@ -57,6 +57,12 @@ export default class RemarkController {
   save() {
     return Storage.saveState(this);
   }
+  /**
+   *
+   *
+   * @param {*} backupData
+   * @memberof RemarkController
+   */
   async revertStore(backupData) {
     this.store = {};
     for (const repoId in backupData) {

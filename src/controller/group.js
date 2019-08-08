@@ -87,12 +87,22 @@ export default class GroupController {
     delete this.store.groups[id];
     this._save();
   }
+  /**
+   *
+   *
+   * @memberof GroupController
+   */
   clear() {
     this.orderBase = 0;
     this.nameMap = {};
     this.store = { groups: {}, repos: {} };
     this._save();
   }
+  /**
+   *
+   *
+   * @memberof GroupController
+   */
   _initOrder() {
     const orders = [];
     for (const key in this.store.groups) {
@@ -106,6 +116,12 @@ export default class GroupController {
       this.orderBase = lastOrder + 1;
     }
   }
+  /**
+   *
+   *
+   * @param {*} { id, name }
+   * @memberof GroupController
+   */
   _updateNameMap({ id, name }) {
     for (const key in this.nameMap) {
       if (this.nameMap.hasOwnProperty(key) && this.nameMap[key] === id) {
@@ -114,6 +130,11 @@ export default class GroupController {
       }
     }
   }
+  /**
+   *
+   *
+   * @memberof GroupController
+   */
   _initNameMap() {
     this.nameMap = {};
     for (const key in this.store.groups) {
@@ -123,6 +144,11 @@ export default class GroupController {
       }
     }
   }
+  /**
+   *
+   *
+   * @memberof GroupController
+   */
   _clearEmpty() {
     for (const key in this.store.groups) {
       if (this.store.groups.hasOwnProperty(key) && this.store.groups[key].repos.length === 0) {
@@ -130,15 +156,34 @@ export default class GroupController {
       }
     }
   }
+  /**
+   *
+   *
+   * @returns
+   * @memberof GroupController
+   */
   async init() {
     const result = await Storage.loadState(this);
     this._initNameMap();
     this._initOrder();
     return result;
   }
+  /**
+   *
+   *
+   * @returns
+   * @memberof GroupController
+   */
   _save() {
     return Storage.saveState(this);
   }
+  /**
+   *
+   *
+   * @param {*} backupData
+   * @returns
+   * @memberof GroupController
+   */
   async revertStore(backupData) {
     if (typeof backupData !== 'object') {
       return Promise.reject(new Error('Wrong groups data structure!'));

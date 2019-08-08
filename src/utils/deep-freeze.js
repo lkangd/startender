@@ -1,3 +1,11 @@
+/**
+ *
+ *
+ * @export
+ * @param {*} o
+ * @param {boolean} [freezeTop=true]
+ * @returns
+ */
 export default function deepFreeze(o, freezeTop = true) {
   const { hasOwnProperty, getOwnPropertyNames, freeze, isFrozen } = Object;
   const oIsFunction = typeof o === 'function';
