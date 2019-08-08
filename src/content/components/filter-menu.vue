@@ -5,6 +5,14 @@
   >
     <div class="filter-menu__panel">
       <ul>
+        <li
+          @click="clear"
+          class="filter-menu__item filter-menu__item--clear"
+          v-if="showClear"
+        >
+          <svg v-html="require('@img/close-con.svg')" />
+          <span>清除过滤排序</span>
+        </li>
         <li class="filter-menu__title">Sort</li>
         <li
           :class="{ 'filter-menu__item--active': sortedMethodID == item.id }"
@@ -37,6 +45,14 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'filter-menu',
+  data() {
+    return {
+      showClear: false,
+    };
+  },
+  created () {
+    this.showClear = !!(this.sortedMethodID || this.filteredLanguage);
+  },
   computed: {
     ...mapState({
       reposLanguage: state => state.repo.reposLanguage,
@@ -53,6 +69,11 @@ export default {
     changeLanguage(language) {
       this.$store.dispatch('repo/SET_FILTER_LANGUAGE', language);
       this.$store.commit('dom/CLOSE_FILTER_MENU');
+    },
+    clear() {
+      this.$store.dispatch('repo/SET_SORTER_METHOD', '');
+      this.$store.dispatch('repo/SET_FILTER_LANGUAGE', '');
+      this.showClear = false;
     },
   },
 };
@@ -119,9 +140,16 @@ export default {
     color: #586069;
     border-radius: 3px;
     cursor: pointer;
-    &--active {
+    &--active,
+    &--clear {
       color: #fff;
       background-color: #0366d6 !important;
+    }
+    &--clear {
+      > svg {
+        width: 11px;
+        height: 11px;
+      }
     }
     &:hover {
       background-color: #eaecef;
