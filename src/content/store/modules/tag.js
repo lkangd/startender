@@ -4,10 +4,10 @@ const ALL_TAGED_ID = Symbol('ALL_TAGED_ID');
 export default {
   namespaced: true,
   state: {
+    bars: [],
     controller: null,
     isInstalled: false,
     filteredTagID: ALL_TAGED_ID,
-    bars: [],
   },
   mutations: {
     UPDATE_FILTERED_TAG_ID(state, tagID) {

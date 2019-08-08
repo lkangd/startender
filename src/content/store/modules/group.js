@@ -4,9 +4,9 @@ const ALL_GROUPED_ID = Symbol('ALL_GROUPED_ID');
 export default {
   namespaced: true,
   state: {
+    bars: [],
     controller: null,
     isInstalled: false,
-    bars: [],
   },
   mutations: {},
   actions: {

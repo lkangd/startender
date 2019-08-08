@@ -61,7 +61,10 @@ export default {
     },
   },
   computed: {
-    ...mapState(['sortedMethod', 'filteredLanguage']),
+    ...mapState({
+      sortedMethod: state => state.repo.sortedMethod,
+      filteredLanguage: state => state.repo.filteredLanguage,
+    })
   },
   methods: {
     handleAction(action) {
@@ -70,7 +73,6 @@ export default {
     handleInput: debounce(function($event) {
       const { value } = $event.target;
       this.$store.dispatch('repo/SET_FILTER_SEARCH', value.trim());
-      this.$store.commit('dom/UPDATE_HEIGHT_TEXT', value.trim());
     }, 300),
   },
 };

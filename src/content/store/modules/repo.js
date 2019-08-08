@@ -11,9 +11,8 @@ export default {
     reposLanguage: [],
 
     controller: null,
-    filteredTagID: Infinity,
+    sortedMethod: '',
     filteredLanguage: '',
-    sortedMethod: 0,
   },
   mutations: {
     UPDATE_REPO_EDIT(state, repo) {
@@ -26,13 +25,12 @@ export default {
 
       state.reposFiltered = {};
       state.reposID = [];
-      for (let i = 0; i < repos.length; i++) {
-        const repo = repos[i];
+      for (let i = 0, repo; (repo = repos[i++]); ) {
         state.reposFiltered[repo.id] = repo;
-        state.reposID.push(String(repo.id));
+        state.reposID.push(repo.id);
       }
-      dispatch('group/UPDATE_BARS', state.reposID, { root: true });
       dispatch('tag/UPDATE_BARS', null, { root: true });
+      dispatch('group/UPDATE_BARS', state.reposID, { root: true });
     },
     UNSTAR_REPO({ state, dispatch }, repo) {
       state.reposBase.splice(repo.repoIndex, 1);
@@ -51,13 +49,13 @@ export default {
       state.filteredLanguage = language;
       dispatch('FILTER_REPOS');
     },
-    SET_FILTER_SEARCH({ state, dispatch }, search) {
+    SET_FILTER_SEARCH({ state, commit, dispatch }, search) {
       state.controller.setSearch(search);
       dispatch('FILTER_REPOS');
+      commit('dom/UPDATE_HEIGHT_TEXT', search, { root: true });
     },
     SET_FILTER_TAG({ state, dispatch, commit }, tagID) {
       state.controller.setTag(tagID);
-      state.filteredTagID = tagID;
       dispatch('FILTER_REPOS');
       commit('tag/UPDATE_FILTERED_TAG_ID', tagID, { root: true });
     },

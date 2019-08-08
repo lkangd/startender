@@ -4,8 +4,8 @@ export default {
   namespaced: true,
   state: {
     controller: null,
-    isInstalled: false,
     affectedRepo: '',
+    isInstalled: false,
   },
   getters: {
     store: state => state.controller.store,

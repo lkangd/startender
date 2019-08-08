@@ -254,13 +254,14 @@ export default {
     },
   },
   methods: {
-    close() {
-      // handle unstar
-      this.unStar && this.$store.dispatch('repo/UNSTAR_REPO', this.repoEdit);
-
-      this.$store.dispatch('tag/UPDATE_BARS');
-      this.$store.dispatch('group/UPDATE_BARS');
-      this.$store.commit('dom/CLOSE_REPO_EDIT');
+    async close() {
+      if (this.unStar) {
+        this.save();
+      } else {
+        this.$store.dispatch('tag/UPDATE_BARS');
+        this.$store.dispatch('group/UPDATE_BARS');
+        this.$store.commit('dom/CLOSE_REPO_EDIT');
+      }
     },
     async toggleStar() {
       const loading = this.$loading({ mountPoint: '.repo__panel', text: '提交中...' });
@@ -283,6 +284,11 @@ export default {
       this.remark = '';
     },
     async save() {
+      // handle unstar
+      if (this.unStar) {
+        this.$store.dispatch('repo/UNSTAR_REPO', this.repoEdit);
+        this.reset();
+      }
       // handle group
       if (this.$store.state.group.controller.store.repos[this.repoEdit.id] && !this.currentGroup) {
         // delete group
@@ -313,7 +319,9 @@ export default {
       if (this.remark !== this.remarks[this.repoEdit.id]) {
         this.$store.dispatch('remark/UPDATE', { id: this.repoEdit.id, content: this.remark.trim() });
       }
-      this.close();
+      this.$store.dispatch('tag/UPDATE_BARS');
+      this.$store.dispatch('group/UPDATE_BARS');
+      this.$store.commit('dom/CLOSE_REPO_EDIT');
     },
     toggleExistGroups(bool) {
       this.showExistGroupsTimer && clearTimeout(this.showExistGroupsTimer);
