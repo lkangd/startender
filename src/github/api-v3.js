@@ -48,16 +48,16 @@ export async function getUserInfo() {
  * @returns starredRepos: [repo...]
  */
 export async function getStarredRepos() {
-  const starredRepos = [];
+  const result = [];
   const getData = (page = 1) => $http.get(`/user/starred?per_page=100&page=${page}`);
   try {
     // get first page
     const res = await getData(1);
-    starredRepos.push(...res.data);
+    result.push(...res.data);
 
     const { link } = res.headers;
     const pageCount = getPageCountInLink(link);
-    if (pageCount === 1) return starredRepos;
+    if (pageCount === 1) return result;
 
     // get all page
     const queryList = Array(pageCount - 1)
@@ -66,12 +66,12 @@ export async function getStarredRepos() {
 
     for (const query of queryList) {
       const res = await query;
-      starredRepos.push(...res.data);
+      result.push(...res.data);
     }
   } catch (error) {
     throw error;
   }
-  return starredRepos;
+  return result;
 }
 
 /**

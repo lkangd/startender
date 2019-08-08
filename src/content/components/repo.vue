@@ -189,7 +189,10 @@ export default {
       immediate: true,
       handler(newVal) {
         if (this.$store.state.tag.controller.store.repos[this.repoEdit.id]) {
-          this.tags = this.$store.state.tag.controller.store.repos[this.repoEdit.id].map(tagId => ({ id: tagId, name: this.$store.state.tag.controller.store.tags[tagId].name }));
+          this.tags = this.$store.state.tag.controller.store.repos[this.repoEdit.id].map(tagId => ({
+            id: tagId,
+            name: this.$store.state.tag.controller.store.tags[tagId].name,
+          }));
         } else {
           this.tags = [];
         }
@@ -205,7 +208,9 @@ export default {
     },
   },
   computed: {
-    ...mapState(['repoEdit']),
+    ...mapState({
+      repoEdit: state => state.repo.repoEdit,
+    }),
     remarks() {
       return this.$store.state.remark.controller.store;
     },
@@ -251,10 +256,10 @@ export default {
   methods: {
     close() {
       // handle unstar
-      this.unStar && this.$store.commit('unstarRepo', this.repoEdit);
+      this.unStar && this.$store.commit('repo/UNSTAR_REPO', this.repoEdit);
 
       this.$store.commit('dom/CLOSE_REPO_EDIT');
-      this.$store.commit('filterStarredRepos');
+      this.$store.commit('repo/FILTER_REPOS');
       this.$store.dispatch('tag/UPDATE_BARS');
       this.$store.dispatch('group/UPDATE_BARS');
     },

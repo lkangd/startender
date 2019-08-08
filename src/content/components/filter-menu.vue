@@ -7,7 +7,7 @@
       <ul>
         <li class="filter-menu__title">Sort</li>
         <li
-          :class="{ 'filter-menu__item--active': sortingWay === item.id }"
+          :class="{ 'filter-menu__item--active': sorteredMethod === item.id }"
           :key="item.id"
           @click="changeSortingWay(item)"
           class="filter-menu__item"
@@ -15,16 +15,16 @@
         >{{ item.text }}</li>
         <li class="filter-menu__title">Languages</li>
         <li
-          :class="{ 'filter-menu__item--active': filterLanguage === '' }"
+          :class="{ 'filter-menu__item--active': filteredLanguage === '' }"
           @click="changeLanguages('')"
           class="filter-menu__item"
         >所有</li>
         <li
-          :class="{ 'filter-menu__item--active': filterLanguage === language }"
+          :class="{ 'filter-menu__item--active': filteredLanguage === language }"
           :key="language"
           @click="changeLanguages(language)"
           class="filter-menu__item"
-          v-for="(count, language) in languages"
+          v-for="(count, language) in reposLanguage"
         >{{ `${language} (${count})` }}</li>
       </ul>
     </div>
@@ -69,24 +69,24 @@ export default {
     };
   },
   computed: {
-    ...mapState(['languages', 'filterLanguage', 'sortingWay']),
+    ...mapState(['reposLanguage', 'filteredLanguage', 'sorteredMethod']),
   },
   methods: {
     changeSortingWay(item) {
       this.$filters.setSorter(item.filterName);
-      this.$store.commit('changeSortingWay', item.id);
-      this.$store.commit('filterStarredRepos');
+      this.$store.commit('repo/UPDATE_SORTERED_METHOD', item.id);
+      this.$store.commit('repo/FILTER_REPOS');
       this.$store.dispatch('group/UPDATE_BARS');
       this.$store.commit('dom/CLOSE_FILTER_MENU');
     },
-    changeLanguages(key) {
-      if (key) {
-        this.$filters.setLanguageFilter(true, key);
+    changeLanguages(language) {
+      if (language) {
+        this.$filters.setLanguageFilter(true, language);
       } else {
         this.$filters.setLanguageFilter(false);
       }
-      this.$store.commit('changeFilterLanguage', key);
-      this.$store.commit('filterStarredRepos');
+      this.$store.commit('repo/UPDATE_FILTERED_LANGUAGE', language);
+      this.$store.commit('repo/FILTER_REPOS');
       this.$store.dispatch('group/UPDATE_BARS');
       this.$store.commit('dom/CLOSE_FILTER_MENU');
     },

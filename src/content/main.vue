@@ -24,17 +24,16 @@
 <script>
 /* eslint-disable no-console */
 import Authorize from './components/authorize';
-import Toggle from './components/toggle';
-import HeaderBar from './components/header-bar';
-import Repos from './components/repos';
-import GroupManage from './components/group-manage';
-import GroupList from './components/group-list';
-import TagManage from './components/tag-manage';
-import TagBar from './components/tag-bar';
-import Repo from './components/repo';
 import FilterMenu from './components/filter-menu';
-import SettingMenu from './components/setting-menu';
+import GroupList from './components/group-list';
+import GroupManage from './components/group-manage';
+import HeaderBar from './components/header-bar';
+import Repo from './components/repo';
 import ResizeHandler from './components/resize-handler';
+import TagBar from './components/tag-bar';
+import TagManage from './components/tag-manage';
+import SettingMenu from './components/setting-menu';
+import Toggle from './components/toggle';
 
 import { getStarredRepos } from '@/github/api-v4';
 
@@ -46,14 +45,14 @@ export default {
     hideGlobalScrollBar();
     if (localStorage.getItem('stars_helper.starred_repos')) {
       this.$toast('使用缓存列表数据');
-      const starredRepos = JSON.parse(localStorage.getItem('stars_helper.starred_repos'));
-      const languagesCount = JSON.parse(localStorage.getItem('stars_helper.languages_count'));
-      this.$store.commit('updateStarredReposOrigin', { starredRepos, languagesCount, cache: true });
-      this.$store.commit('filterStarredRepos');
+      const reposBase = JSON.parse(localStorage.getItem('stars_helper.starred_repos'));
+      const reposLanguage = JSON.parse(localStorage.getItem('stars_helper.languages_count'));
+      this.$store.commit('repo/UPDATE_REPOS_BASE', { reposBase, reposLanguage, cache: true });
+      this.$store.commit('repo/FILTER_REPOS');
     } else {
-      getStarredRepos().then(starredRepos => {
-        this.$store.commit('updateStarredReposOrigin', starredRepos);
-        this.$store.commit('filterStarredRepos');
+      getStarredRepos().then(reposBase => {
+        this.$store.commit('repo/UPDATE_REPOS_BASE', reposBase);
+        this.$store.commit('repo/FILTER_REPOS');
       });
     }
     this.$store.dispatch('tag/UPDATE_BARS');
@@ -61,17 +60,16 @@ export default {
   },
   components: {
     Authorize,
-    Toggle,
-    HeaderBar,
-    Repos,
-    GroupManage,
-    GroupList,
-    TagManage,
-    TagBar,
-    Repo,
     FilterMenu,
-    SettingMenu,
+    GroupList,
+    GroupManage,
+    HeaderBar,
+    Repo,
     ResizeHandler,
+    SettingMenu,
+    TagBar,
+    TagManage,
+    Toggle,
   },
 };
 </script>

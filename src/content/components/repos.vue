@@ -1,53 +1,53 @@
 <template>
   <ul class="repos">
-    <template v-if="starredRepoIds.length">
+    <template v-if="reposID.length">
       <li
         :key="repoId"
         class="repos__item"
         v-for="(repoId, index) in repoIds"
       >
         <button
-          @click="edit(starredRepos[repoId], index)"
+          @click="edit(reposFiltered[repoId], index)"
           class="repos__item--edit"
         >编辑</button>
         <a
-          :href="starredRepos[repoId].url"
+          :href="reposFiltered[repoId].url"
           class="repos__item--name"
           target="_blank"
         >
-          <span v-highlight="$store.state.dom.highlightText">{{ starredRepos[repoId].owner.login }}</span>
+          <span v-highlight="$store.state.dom.highlightText">{{ reposFiltered[repoId].owner.login }}</span>
           /
           <span
             class="bold"
             v-highlight="$store.state.dom.highlightText"
-          >{{ starredRepos[repoId].name }}</span>
+          >{{ reposFiltered[repoId].name }}</span>
         </a>
         <br />
         <p
           class="repos__item--desc"
           v-highlight="$store.state.dom.highlightText"
-        >{{ starredRepos[repoId].description }}</p>
+        >{{ reposFiltered[repoId].description }}</p>
         <div class="repos__item--attrs">
           <p
             class="repos__item--attrs-language"
-            v-if="starredRepos[repoId].primaryLanguage"
+            v-if="reposFiltered[repoId].primaryLanguage"
           >
             <span
-              :style="`background-color: ${ starredRepos[repoId].primaryLanguage.color }`"
+              :style="`background-color: ${ reposFiltered[repoId].primaryLanguage.color }`"
               class="language-dot"
             ></span>
-            <span>{{ starredRepos[repoId].primaryLanguage.name }}</span>
+            <span>{{ reposFiltered[repoId].primaryLanguage.name }}</span>
           </p>
           <p class="repos__item--attrs-stars">
             <svg v-html="require('@img/github-star.svg')" />
-            <span>{{ starredRepos[repoId].stargazers.totalCount | formatNumber }}</span>
+            <span>{{ reposFiltered[repoId].stargazers.totalCount | formatNumber }}</span>
           </p>
           <p class="repos__item--attrs-forks">
             <svg v-html="require('@img/github-fork.svg')" />
-            <span>{{ starredRepos[repoId].forkCount | formatNumber }}</span>
+            <span>{{ reposFiltered[repoId].forkCount | formatNumber }}</span>
           </p>
           <p class="repos__item--attrs-update">
-            <span>Updated {{ starredRepos[repoId].pushedAt | formatUpdate }}</span>
+            <span>Updated {{ reposFiltered[repoId].pushedAt | formatUpdate }}</span>
           </p>
         </div>
         <template v-if="tags.repos && tags.repos[repoId]">
@@ -98,11 +98,14 @@ export default {
     },
   },
   computed: {
-    ...mapState(['starredRepos', 'starredRepoIds']),
+    ...mapState({
+      reposFiltered: state => state.repo.reposFiltered,
+      reposID: state => state.repo.reposID,
+    }),
   },
   methods: {
-    edit(item, index) {
-      this.$store.commit('setRepoEdit', item);
+    edit(repo, index) {
+      this.$store.commit('repo/UPDATE_REPO_EDIT', repo);
       this.$store.commit('dom/OPEN_REPO_EDIT');
     },
   },

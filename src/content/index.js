@@ -46,8 +46,8 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 });
 
 (async () => {
-  const GITHUB_STARS_HELPER_ACCESS_TOKEN = await $storageSync.get('GITHUB_STARS_HELPER_ACCESS_TOKEN');
-  store.commit('updateAccessToken', GITHUB_STARS_HELPER_ACCESS_TOKEN);
+  const accessToken = await $storageSync.get('GITHUB_STARS_HELPER_ACCESS_TOKEN');
+  store.commit('UPDATE_ACCESS_TOKEN', accessToken);
 
   const groups = new GroupController();
   const tags = new TagController();
@@ -62,7 +62,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
   const filters = new FilterController(groups, tags, remarks);
 
   Vue.prototype.$filters = filters;
-  store.commit('installFilterController', filters);
+  store.commit('repo/INSTALL_FILTER_CONTROLLER', filters);
 
   // only init views in stars page
   isStarsTab() && instantiation();

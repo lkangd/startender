@@ -18,17 +18,17 @@ export default {
       state.controller = controller;
       state.isInstalled = true;
     },
-    ADD({ dispatch, commit, getters, rootState, state }, remark) {
+    ADD({ state }, remark) {
       state.controller.add(remark);
     },
-    UPDATE({ dispatch, commit, getters, rootState, state }, remark) {
+    UPDATE({ dispatch, state }, remark) {
       state.controller.update(remark);
       dispatch('UPDATE_AFFECTED_REPO', remark.id);
     },
-    DELETE({ dispatch, commit, getters, rootState, state }, id) {
+    DELETE({ state }, id) {
       state.controller.delete(id);
     },
-    async REVERT_STORE({ dispatch, commit, getters, rootState, state }, store) {
+    async REVERT_STORE({ state }, store) {
       await state.controller.revertStore(store);
     },
     UPDATE_AFFECTED_REPO({ state }, id) {

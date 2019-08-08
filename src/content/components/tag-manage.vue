@@ -126,8 +126,8 @@ export default {
       this.tags.forEach(({ id, name, repos }) => this.$store.dispatch('tag/UPDATE', { id, name, repos }));
 
       this.$filters.setTagFilter(false);
-      this.$store.commit('filterStarredRepos');
-      this.$store.commit('updateFilteredTagId', Infinity);
+      this.$store.commit('repo/FILTER_REPOS');
+      this.$store.commit('repo/UPDATE_FILTERED_TAG_ID', Infinity);
       this.$store.dispatch('tag/UPDATE_BARS');
       this.$store.dispatch('group/UPDATE_BARS');
       this.$store.commit('dom/CLOSE_TAG_MANAGE');

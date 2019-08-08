@@ -53,15 +53,15 @@ export default {
     };
   },
   watch: {
-    sortingWay(newVal) {
-      this.$set(this.operations.filter, 'active', !!(this.sortingWay || this.filterLanguage));
+    sorteredMethod(newVal) {
+      this.$set(this.operations.filter, 'active', !!(this.sorteredMethod || this.filteredLanguage));
     },
-    filterLanguage(newVal) {
-      this.$set(this.operations.filter, 'active', !!(this.sortingWay || this.filterLanguage));
+    filteredLanguage(newVal) {
+      this.$set(this.operations.filter, 'active', !!(this.sorteredMethod || this.filteredLanguage));
     },
   },
   computed: {
-    ...mapState(['sortingWay', 'filterLanguage']),
+    ...mapState(['sorteredMethod', 'filteredLanguage']),
   },
   methods: {
     handleAction(action) {
@@ -75,7 +75,7 @@ export default {
         this.$filters.setSearchFilter(true, value.trim());
       }
       this.$store.commit('dom/UPDATE_HEIGHT_TEXT', value.trim());
-      this.$store.commit('filterStarredRepos');
+      this.$store.commit('repo/FILTER_REPOS');
       this.$store.dispatch('group/UPDATE_BARS');
     }, 300),
   },

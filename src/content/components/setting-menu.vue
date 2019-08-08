@@ -21,9 +21,9 @@ export default {
           {
             name: '刷新数据',
             action() {
-              getStarredRepos().then(starredRepos => {
-                this.$store.commit('updateStarredReposOrigin', starredRepos);
-                this.$store.commit('filterStarredRepos');
+              getStarredRepos().then(reposBase => {
+                this.$store.commit('repo/UPDATE_REPOS_BASE', reposBase);
+                this.$store.commit('repo/FILTER_REPOS');
                 this.$store.dispatch('group/UPDATE_BARS');
                 this.$toast.success('数据已刷新');
               });
@@ -154,7 +154,9 @@ export default {
     );
   },
   computed: {
-    ...mapState(['starredRepos']),
+    ...mapState({
+      reposFiltered: state => state.repo.reposFiltered,
+    }),
   },
   methods: {
     handleClick(evt) {
@@ -212,10 +214,10 @@ export default {
       });
     },
     _generateBookmarkItem(repoId) {
-      if (this.starredRepos[repoId]) {
+      if (this.reposFiltered[repoId]) {
         return {
-          name: this.starredRepos[repoId].nameWithOwner,
-          url: this.starredRepos[repoId].url,
+          name: this.reposFiltered[repoId].nameWithOwner,
+          url: this.reposFiltered[repoId].url,
         };
       }
     },

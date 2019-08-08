@@ -39,7 +39,7 @@ export default {
       for (const id in groups) {
         if (groups.hasOwnProperty(id)) {
           let { name, order, repos, open } = groups[id];
-          repos = rootState.starredRepoIds.filter(repoId => repos.includes(repoId));
+          repos = rootState.repo.reposID.filter(repoId => repos.includes(repoId));
           open = repos.length ? barsOpenStatus[id] : false;
           bars[order] = { id, name, repos, order, open };
         }
@@ -49,14 +49,14 @@ export default {
       const unGroup = {
         id: UN_GROUPED_ID,
         name: '未分组',
-        repos: rootState.starredRepoIds.filter(id => !state.controller.store.repos[id]),
+        repos: rootState.repo.reposID.filter(id => !state.controller.store.repos[id]),
         order: -1,
         open: barsOpenStatus[UN_GROUPED_ID],
       };
       const allGroup = {
         id: ALL_GROUPED_ID,
         name: '所有',
-        repos: rootState.starredRepoIds,
+        repos: rootState.repo.reposID,
         order: state.bars.length,
         open: barsOpenStatus[ALL_GROUPED_ID],
       };

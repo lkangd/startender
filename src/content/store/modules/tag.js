@@ -26,10 +26,10 @@ export default {
     UPDATE_REPO({ state }, repo) {
       state.controller.updateRepo(repo);
     },
-    async REVERT_STORE({ dispatch, commit, getters, rootState, state }, store) {
+    async REVERT_STORE({ state }, store) {
       await state.controller.revertStore(store);
     },
-    UPDATE_BARS({ dispatch, commit, getters, rootState, state }) {
+    UPDATE_BARS({ state }) {
       const { tags } = state.controller.store;
       state.bars = [];
       for (const id in tags) {
