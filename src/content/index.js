@@ -26,10 +26,16 @@ Vue.use(Loading, { mountPoint: '#stars-helper' });
 let app = null;
 const id = 'stars-helper';
 const instantiation = async () => {
-  if (app && !app._isMounted) {
-    app.$mount(`#${id}`);
+  if (app) {
+    if (app._isMounted === false) {
+      app.$mount(`#${id}`);
+    } else {
+      store.commit('dom/OPEN_PANEL');
+    }
     return;
   }
+  // placeholder
+  app = {};
 
   const accessToken = await $storageSync.get('GITHUB_STARS_HELPER_ACCESS_TOKEN');
   store.commit('UPDATE_ACCESS_TOKEN', accessToken);
@@ -41,7 +47,9 @@ const instantiation = async () => {
   ]);
   store.dispatch('repo/INSTALL_CONTROLLER', new FilterController());
 
-  $(`<div id="${id}"></div>`).appendTo($('body'));
+  if (!$(`#${id}`).length) {
+    $(`<div id="${id}"></div>`).appendTo($('body'));
+  }
   setTimeout(() => {
     app = new Vue({ store, render: h => h(Main) });
     app.$mount(`#${id}`);

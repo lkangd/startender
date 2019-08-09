@@ -1,3 +1,5 @@
+import $storageSync from '@/utils/storage-sync';
+
 /**
  *
  *
@@ -17,7 +19,10 @@ export function isStarsTab(url = window.location.href) {
  * @param {*} [url=window.location.href]
  */
 export function saveStarsTabUrl(url = window.location.href) {
-  isStarsTab() && localStorage.setItem('stars_helper.stars_tab_url', url);
+  if (isStarsTab()) {
+    $storageSync.set('GITHUB_STARS_HELPER_STARS_URL', url);
+    localStorage.setItem('stars_helper.stars_tab_url', url);
+  }
 }
 
 /**

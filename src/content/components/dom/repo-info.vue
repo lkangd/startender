@@ -4,12 +4,16 @@
       :href="repo.url"
       class="repo-info__name"
       target="_blank"
+      v-highlight="$store.state.dom.highlightText"
     >
       {{ repo.owner && repo.owner.login }} /
       <span class="bold">{{ repo.name }}</span>
     </a>
     <br />
-    <p class="repo-info__desc">{{ repo.description }}</p>
+    <p
+      class="repo-info__desc"
+      v-highlight="$store.state.dom.highlightText"
+    >{{ repo.description }}</p>
     <div class="repo-info__attrs">
       <p
         class="repo-info__attrs-language"

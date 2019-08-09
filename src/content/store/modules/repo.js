@@ -1,3 +1,4 @@
+import Toast from '@/content/components/toast/index';
 import { getStarredRepos } from '@/github/api-v4';
 import deepFreeze from '@/utils/deep-freeze';
 
@@ -78,6 +79,7 @@ export default {
           state.reposBase = deepFreeze(reposBase, false);
           state.reposLanguage = reposLanguage;
           dispatch('FILTER_REPOS');
+          Toast('使用缓存列表数据');
           return;
         }
       }

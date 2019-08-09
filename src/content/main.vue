@@ -42,7 +42,6 @@ export default {
   async mounted() {
     hideGlobalScrollBar();
     await this.$store.dispatch('repo/UPDATE_REPOS_BASE');
-    this.$toast('使用缓存列表数据');
   },
   components: {
     Authorize,
