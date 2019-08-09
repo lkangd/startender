@@ -72,7 +72,7 @@
       <div class="group-manage__operate">
         <button
           @click="save"
-          class="group-manage__operate--btn"
+          class="group-manage__operate--btn stars-helper-btn stars-helper-btn--highlight"
         >保存</button>
       </div>
     </div>
@@ -82,7 +82,6 @@
 <script>
 /* eslint-disable no-console */
 import { SlickList, SlickItem } from 'vue-slicksort';
-import { mapState } from 'vuex';
 import { cloneDeep } from 'lodash';
 
 export default {
@@ -151,20 +150,16 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import '~@/assets/less/mixins.less';
+
 .group-manage {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 99;
+  .cover-top(fixed, 99);
   background-color: rgba(27, 31, 35, 0.5);
   &__panel {
-    background-clip: padding-box;
     margin: 69px auto;
     width: 450px;
-    // min-height: 200px;
     background-color: #fff;
+    background-clip: padding-box;
     border: 1px solid #444d56;
     border-radius: 3px;
     box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
@@ -173,14 +168,14 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    border-bottom: 1px solid #e1e4e8 !important;
-    border-width: 0 0 1px;
     margin: 0;
     padding: 16px;
     color: #24292e;
     background-color: #f6f8fa;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+    border-bottom: 1px solid #e1e4e8 !important;
+    border-width: 0 0 1px;
     span {
       font-size: 14px;
       font-weight: 600;
@@ -207,10 +202,10 @@ export default {
     scroll-behavior: smooth;
     &--item {
       position: relative;
+      z-index: 200;
       padding-left: 16px;
       height: 40px;
       line-height: 40px;
-      z-index: 200;
       background-color: #fff;
       cursor: pointer;
       &:hover {
@@ -263,9 +258,9 @@ export default {
       }
       &-drag {
         position: absolute;
-        right: 16px;
         top: 0;
         bottom: 0;
+        right: 16px;
         margin: auto 0;
         width: 14px;
         height: 14px;
@@ -279,26 +274,7 @@ export default {
     padding: 16px;
     border-top: 1px solid #e1e4e8;
     &--btn {
-      display: block;
-      margin: 0 auto;
       width: 200px;
-      height: 34px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #fff;
-      background-position: -1px -1px;
-      background-repeat: repeat-x;
-      background-size: 110% 110%;
-      background-color: #28a745;
-      background-image: linear-gradient(-180deg, #34d058, #28a745 90%);
-      border: 1px solid rgba(27, 31, 35, 0.2);
-      border-radius: 3px;
-      &:hover {
-        background-color: #269f42;
-        background-image: linear-gradient(-180deg, #2fcb53, #269f42 90%);
-        background-position: -0.5em;
-        border-color: rgba(27, 31, 35, 0.5);
-      }
     }
   }
 }

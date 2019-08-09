@@ -40,12 +40,12 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import '~@/assets/less/mixins.less';
+
 .resize-handler {
-  position: absolute;
-  top: 0;
-  bottom: 0;
+  .cover-top(absolute, 100);
+  right: unset;
   left: -4px;
-  z-index: 100;
   width: 8px;
   background-color: transparent;
   cursor: col-resize;

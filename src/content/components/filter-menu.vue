@@ -50,7 +50,7 @@ export default {
       showClear: false,
     };
   },
-  created () {
+  created() {
     this.showClear = !!(this.sortedMethodID || this.filteredLanguage);
   },
   computed: {
@@ -80,13 +80,10 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import '~@/assets/less/mixins.less';
+
 .filter-menu {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 99;
+  .cover-top(fixed, 99);
   background-color: transparent;
   &__panel {
     position: absolute;

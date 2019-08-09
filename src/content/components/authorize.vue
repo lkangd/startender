@@ -11,7 +11,7 @@
     >查看详细授权说明</a>
     <a
       :href="authURL"
-      class="authorize__btn"
+      class="authorize__btn stars-helper-btn stars-helper-btn--highlight"
     >授权获取星标仓库</a>
   </div>
 </template>
@@ -31,13 +31,10 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import '~@/assets/less/mixins.less';
+
 .authorize {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 999;
+  .cover-top();
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -55,26 +52,9 @@ export default {
   }
   &__btn {
     width: 200px;
-    height: 34px;
     line-height: 32px;
-    font-size: 14px;
     font-weight: 600;
-    background-position: -1px -1px;
-    background-repeat: repeat-x;
-    background-size: 110% 110%;
-    border: 1px solid rgba(27, 31, 35, 0.2);
-    border-radius: 3px;
-    color: #fff;
-    background-color: #28a745;
-    background-image: linear-gradient(-180deg, #34d058, #28a745 90%);
     text-decoration: none;
-    cursor: pointer;
-    &:hover {
-      background-color: #269f42;
-      background-image: linear-gradient(-180deg, #2fcb53, #269f42 90%);
-      background-position: -0.5em;
-      border-color: rgba(27, 31, 35, 0.5);
-    }
   }
 }
 </style>

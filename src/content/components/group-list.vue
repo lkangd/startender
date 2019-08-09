@@ -35,6 +35,8 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import '~@/assets/less/mixins.less';
+
 .group-list {
   flex: 1;
   background-color: #fff;
@@ -48,16 +50,10 @@ export default {
       align-items: center;
       padding: 0 16px;
       height: 34px;
-      background-color: #eff3f6;
-      background-image: linear-gradient(-180deg, #fafbfc, #eff3f6 90%);
-      border-bottom: 1px solid #d1d5db;
+      border-bottom: 1px solid #d1d5db !important;
       cursor: pointer;
       user-select: none;
-      &:hover {
-        background-color: #e6ebf1;
-        background-image: linear-gradient(-180deg, #f0f3f6, #e6ebf1 90%);
-        background-position: -0.5em;
-      }
+      .stars-helper-linear-gradient();
     }
     &__title {
       flex: 1;

@@ -1,0 +1,31 @@
+@import './mixins';
+
+.stars-helper {
+  &-hide-scroll-bar {
+    &::-webkit-scrollbar {
+      width: 0 !important;
+    }
+  }
+  &-btn {
+    display: block;
+    margin: 0 auto;
+    padding: 0;
+    height: 34px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    color: #24292e;
+    background-position: -1px -1px;
+    background-repeat: repeat-x;
+    border-radius: 3px;
+    background-size: 110% 110%;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+    .stars-helper-linear-gradient();
+    &--highlight {
+      color: #fff;
+      .stars-helper-linear-gradient--highlight();
+    }
+  }
+}

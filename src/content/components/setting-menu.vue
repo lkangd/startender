@@ -128,7 +128,7 @@ export default {
   },
   render(h) {
     return (
-      <div class="setting-menu" onClick={this.handleClick}>
+      <div class="setting-menu redredred" onClick={this.handleClick}>
         <ul class="setting-menu__list">
           {this.menus.map(sublist => (
             <li class="setting-menu__sub-list">
@@ -219,13 +219,10 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import '~@/assets/less/mixins.less';
+
 .setting-menu {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 99;
+  .cover-top(fixed, 99);
   background-color: transparent;
   &__list {
     position: absolute;
@@ -286,13 +283,8 @@ export default {
     }
   }
   &__input {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    .cover-top(absolute, 9999);
     margin: auto;
-    z-index: 9999;
     width: 100%;
     height: 100%;
     font-size: 0;

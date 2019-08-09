@@ -88,18 +88,7 @@ export default {
 </script>
 
 <style scoped lang="less">
-.transitions(@name, @tranStyle, @tranArgs, @tranType: all 0.3s ease,) {
-  &.@{name}-enter-active {
-    transition: @tranType;
-  }
-  &.@{name}-leave-active {
-    transition: @tranType;
-  }
-  &.@{name}-enter,
-  &.@{name}-leave-to {
-    @{tranStyle}: @tranArgs;
-  }
-}
+@import '~@/assets/less/mixins.less';
 
 .toast {
   position: absolute;

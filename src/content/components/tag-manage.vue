@@ -61,7 +61,7 @@
       <div class="tag-manage__operate">
         <button
           @click="save"
-          class="tag-manage__btn"
+          class="tag-manage__btn stars-helper-btn stars-helper-btn--highlight"
         >保存</button>
       </div>
     </div>
@@ -70,7 +70,6 @@
 
 <script>
 /* eslint-disable no-console */
-import { mapState } from 'vuex';
 import { cloneDeep } from 'lodash';
 
 export default {
@@ -133,13 +132,10 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import '~@/assets/less/mixins.less';
+
 .tag-manage {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 99;
+  .cover-top(fixed, 99);
   background-color: rgba(27, 31, 35, 0.5);
   &__wrapper {
     background-clip: padding-box;
@@ -245,26 +241,7 @@ export default {
     border-top: 1px solid #e1e4e8;
   }
   &__btn {
-    display: block;
-    margin: 0 auto;
     width: 200px;
-    height: 34px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #fff;
-    background-position: -1px -1px;
-    background-repeat: repeat-x;
-    background-size: 110% 110%;
-    background-color: #28a745;
-    background-image: linear-gradient(-180deg, #34d058, #28a745 90%);
-    border: 1px solid rgba(27, 31, 35, 0.2);
-    border-radius: 3px;
-    &:hover {
-      background-color: #269f42;
-      background-image: linear-gradient(-180deg, #2fcb53, #269f42 90%);
-      background-position: -0.5em;
-      border-color: rgba(27, 31, 35, 0.5);
-    }
   }
 }
 </style>

@@ -10,46 +10,12 @@
       <div class="repo__wrap">
         <button
           @click="toggleStar"
-          class="repo__toggle-star"
+          class="repo__toggle-star stars-helper-btn"
         >
           <svg v-html="require('@img/github-star.svg')" />
           <span>{{ unStar ? 'Star' : 'Unstar' }}</span>
         </button>
-
-        <a
-          :href="repoEdit.url"
-          class="repo__name"
-          target="_blank"
-        >
-          {{ repoEdit.owner && repoEdit.owner.login }} /
-          <span class="bold">{{ repoEdit.name }}</span>
-        </a>
-
-        <br />
-        <p class="repo__desc">{{ repoEdit.description }}</p>
-        <div class="repo__attrs">
-          <p
-            class="repo__attrs-language"
-            v-if="repoEdit.primaryLanguage"
-          >
-            <span
-              :style="`background-color: ${ repoEdit.primaryLanguage.color }`"
-              class="language-dot"
-            ></span>
-            <span>{{ repoEdit.primaryLanguage.name }}</span>
-          </p>
-          <p class="repo__attrs-stars">
-            <svg v-html="require('@img/github-star.svg')" />
-            <span>{{ repoEdit.stargazers.totalCount | formatNumber }}</span>
-          </p>
-          <p class="repo__attrs-forks">
-            <svg v-html="require('@img/github-fork.svg')" />
-            <span>{{ repoEdit.forkCount | formatNumber }}</span>
-          </p>
-          <p class="repo__attrs-update">
-            <span>Updated {{ repoEdit.pushedAt | formatUpdate }}</span>
-          </p>
-        </div>
+        <repo-info :repo="repoEdit" />
         <!-- 标签 -->
         <div
           @click.self="$refs.tagInput.focus()"
@@ -152,11 +118,11 @@
       <div class="repo__operate">
         <button
           @click="save"
-          class="repo__operate--btn highlight"
+          class="repo__operate--btn stars-helper-btn stars-helper-btn--highlight"
         >保存</button>
         <button
           @click="reset"
-          class="repo__operate--btn"
+          class="repo__operate--btn stars-helper-btn"
         >重置</button>
       </div>
     </div>
@@ -167,12 +133,12 @@
 /* eslint-disable no-console */
 import { mapState } from 'vuex';
 import { starRepo, unStarRepo } from '@/github/api-v3';
+import RepoInfo from '@/content/components/dom/repo-info';
 
 export default {
   name: 'repo',
   data() {
     return {
-      // languageColors,
       showExistGroups: false,
       showExistGroupsTimer: null,
       showExistTags: false,
@@ -369,24 +335,21 @@ export default {
       this.$nextTick(() => this.$refs.tagInput && this.$refs.tagInput.focus());
     },
   },
+  components: { RepoInfo },
 };
 </script>
 
 <style scoped lang="less">
+@import '~@/assets/less/mixins.less';
+
 .repo {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 99;
+  .cover-top(fixed, 99);
   background-color: rgba(27, 31, 35, 0.5);
   &__panel {
     position: relative;
     background-clip: padding-box;
     margin: 69px auto;
     width: 450px;
-    // min-height: 200px;
     background-color: #fff;
     border: 1px solid #444d56;
     border-radius: 3px;
@@ -432,102 +395,19 @@ export default {
     top: 12px;
     right: 16px;
     padding: 3px 7px;
+    height: auto;
     color: #24292e;
-    background-color: #eff3f6;
-    background-image: linear-gradient(-180deg, #fafbfc, #eff3f6 90%);
-    border-radius: 3px;
-    border-color: rgba(27, 31, 35, 0.2);
-    &:hover {
-      background-color: #e6ebf1;
-      background-image: linear-gradient(-180deg, #f0f3f6, #e6ebf1 90%);
-      background-position: -0.5em;
-    }
-    span,
-    svg {
-      display: inline-block;
-      // width: 14px;
+    span {
       height: 16px;
       font-size: 12px;
       line-height: 16px;
       font-weight: bold;
-      color: currentColor;
     }
     svg {
       margin-right: 4px;
       width: 14px;
       height: 14px;
-    }
-  }
-  &__name {
-    display: inline-block;
-    font-size: 16px;
-    color: #0366d6;
-    cursor: pointer;
-    .bold {
-      font-size: 16px;
-      font-weight: bold;
-    }
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-  &__desc {
-    margin-top: 14px;
-    font-size: 12px;
-    color: #586069;
-  }
-  &__attrs {
-    display: flex;
-    align-items: center;
-    margin-top: 14px;
-    font-size: 12px;
-    line-height: 12px;
-    color: #586069;
-    span {
-      display: inline-block;
-      vertical-align: middle;
-      font-size: 12px;
-      line-height: 16px;
-    }
-    &-language {
-      margin-right: 14px;
-      .language-dot {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        line-height: 18px;
-        border-radius: 100%;
-      }
-    }
-    &-stars {
-      cursor: pointer;
-      &:hover {
-        color: #0366d6;
-      }
-      svg {
-        display: inline-block;
-        width: 14px;
-        height: 16px;
-        vertical-align: middle;
-        color: currentColor;
-      }
-    }
-    &-forks {
-      margin-left: 14px;
-      cursor: pointer;
-      &:hover {
-        color: #0366d6;
-      }
-      svg {
-        width: 10px;
-        height: 16px;
-        display: inline-block;
-        vertical-align: middle;
-        color: currentColor;
-      }
-    }
-    &-update {
-      margin-left: 14px;
+      color: currentColor;
     }
   }
   &__tags,
@@ -653,34 +533,6 @@ export default {
     border-top: 1px solid #e1e4e8;
     &--btn {
       width: 200px;
-      height: 34px;
-      font-size: 14px;
-      font-weight: 600;
-      background-color: #eff3f6;
-      background-image: linear-gradient(-180deg, #fafbfc, #eff3f6 90%);
-      color: #24292e;
-      background-position: -1px -1px;
-      background-repeat: repeat-x;
-      background-size: 110% 110%;
-      border: 1px solid rgba(27, 31, 35, 0.2);
-      border-radius: 3px;
-      &:hover {
-        background-color: #e6ebf1;
-        background-image: linear-gradient(-180deg, #f0f3f6, #e6ebf1 90%);
-        background-position: -0.5em;
-        border-color: rgba(27, 31, 35, 0.35);
-      }
-      &.highlight {
-        color: #fff;
-        background-color: #28a745;
-        background-image: linear-gradient(-180deg, #34d058, #28a745 90%);
-        &:hover {
-          background-color: #269f42;
-          background-image: linear-gradient(-180deg, #2fcb53, #269f42 90%);
-          background-position: -0.5em;
-          border-color: rgba(27, 31, 35, 0.5);
-        }
-      }
     }
   }
 }

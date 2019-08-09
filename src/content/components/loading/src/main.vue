@@ -50,26 +50,10 @@ export default {
 </script>
 
 <style scoped lang="less">
-.transitions(@name, @tranStyle, @tranArgs, @tranType: all 0.3s ease,) {
-  &.@{name}-enter-active {
-    transition: @tranType;
-  }
-  &.@{name}-leave-active {
-    transition: @tranType;
-  }
-  &.@{name}-enter,
-  &.@{name}-leave-to {
-    @{tranStyle}: @tranArgs;
-  }
-}
+@import '~@/assets/less/mixins.less';
 
 .loading {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 999;
+  .cover-top();
   display: flex;
   flex-direction: column;
   align-items: center;

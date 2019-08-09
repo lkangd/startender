@@ -5,7 +5,7 @@
       <input
         @input="handleInput($event)"
         class="search__input"
-        placeholder="输入仓库名或作者名..."
+        placeholder="输入仓库名/作者名/描述/备注..."
         v-model="value"
       />
       <svg
