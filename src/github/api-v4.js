@@ -49,13 +49,10 @@ export function getStarredRepos() {
               # email
               # name
               # url
-              ${
-                startCursor
-                  ? 'starredRepositories(orderBy: {field: STARRED_AT, direction: DESC}, first: 100, after: "' + startCursor + '") {'
-                  : 'starredRepositories(orderBy: {field: STARRED_AT, direction: DESC}, first: 100) {'
-              }
+              starredRepositories(orderBy: {field: STARRED_AT, direction: DESC}, first: 100
+              ${startCursor ? ', after: "' + startCursor + '"' : ''}) {
                 edges {
-                  starredAt
+                  # starredAt
                   # cursor
                   node {
                     id
@@ -109,9 +106,17 @@ export function getStarredRepos() {
           }
         })
         .catch(error => {
+          const {
+            networkError: { statusCode },
+          } = error;
+          if (statusCode == 401) {
+            Store.commit('UPDATE_ACCESS_TOKEN');
+            Toast.error({ mountPoint: '#stars-helper', text: '授权失效，请重新授权' });
+          } else {
+            Toast.error({ mountPoint: '#stars-helper', text: '数据加载失败，请刷新页面后再试' });
+          }
           console.error(error);
           $loading.close();
-          Toast.error({ mountPoint: '#stars-helper', text: '数据加载失败，请刷新页面后再试' });
         });
     query();
   });

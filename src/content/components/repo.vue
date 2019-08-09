@@ -227,8 +227,9 @@ export default {
           await unStarRepo(this.repoEdit.nameWithOwner);
         }
         this.unStar = !this.unStar;
-      } catch (e) {
-        console.log('Post star status failed: ' + e);
+      } catch (error) {
+        this.$store.commit('dom/CLOSE_REPO_EDIT');
+        console.error('Post star status failed: ' + error);
       } finally {
         loading.close();
       }

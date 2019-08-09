@@ -1,6 +1,7 @@
 import Axios from 'axios';
 import GH from '@/github/config';
 import Store from '@/content/store';
+import Toast from '@/content/components/toast/index';
 
 const $http = (() => {
   const $http = Axios.create({ baseURL: GH.API_V3 });
@@ -20,6 +21,12 @@ const $http = (() => {
       return response;
     },
     ({ response }) => {
+      if (response.status == 401) {
+        Store.commit('UPDATE_ACCESS_TOKEN');
+        Toast.error({ mountPoint: '#stars-helper', text: '授权失效，请重新授权' });
+      } else {
+        Toast.error({ mountPoint: '#stars-helper', text: '数据加载失败，请刷新页面后再试' });
+      }
       return Promise.reject(response);
     },
   );
