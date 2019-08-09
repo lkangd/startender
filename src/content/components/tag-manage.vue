@@ -1,86 +1,78 @@
 <template>
-  <div class="tag-manage">
-    <div class="tag-manage__wrapper">
-      <h3 class="tag-manage__title">
-        <span>管理标签</span>
-        <button @click="$store.commit('dom/CLOSE_TAG_MANAGE')">
-          <svg v-html="require('@img/close-con.svg')" />
-        </button>
-      </h3>
-      <ul class="tag-manage__list">
-        <li class="list-item">
-          <svg
-            @click="addTag"
-            class="list-item__icon"
-            v-html="require('@img/group-add.svg')"
-          />
-          <input
-            @keyup.enter="addTag"
-            class="list-item__input"
-            maxlength="20"
-            placeholder="输入组名并回车确定..."
-            type="text"
-            v-model="newTagName"
-          />
-        </li>
-        <li
-          :key="index"
-          class="list-item"
-          v-for="(tag, index) in tags"
+  <popup
+    @close="$store.commit('dom/CLOSE_TAG_MANAGE')"
+    @confirm="save"
+    confirmBtnText="保存"
+  >
+    <template v-slot:title>标签管理</template>
+    <ul class="tag-manage__list">
+      <li class="list-item">
+        <svg
+          @click="addTag"
+          class="list-item__icon"
+          v-html="require('@img/group-add.svg')"
+        />
+        <input
+          @keyup.enter="addTag"
+          class="list-item__input"
+          maxlength="20"
+          placeholder="输入组名并回车确定..."
+          type="text"
+          v-model="newTagName"
+        />
+      </li>
+      <li
+        :key="index"
+        class="list-item"
+        v-for="(tag, index) in tags"
+      >
+        <svg
+          @click="deleteTag(tag, index)"
+          class="list-item__icon"
+          v-html="require('@img/group-delete.svg')"
+        />
+        <input
+          :ref="`tagNameInput${index}`"
+          @blur="modifyTagName(tag, index)"
+          @focus="editingName = tag.name"
+          @keyup.enter="modifyTagName(tag, index)"
+          class="list-item__input"
+          maxlength="20"
+          placeholder="输入标签名并回车确定..."
+          type="text"
+          v-if="tag.editing"
+          v-model="editingName"
+        />
+        <div
+          class="list-item__name"
+          v-else
         >
+          <span class="list-item__text">{{ `${tag.name}(${tag.repos.length})` }}</span>
           <svg
-            @click="deleteTag(tag, index)"
-            class="list-item__icon"
-            v-html="require('@img/group-delete.svg')"
+            @click="editTag(tag, index)"
+            class="list-item__icon list-item__icon--edit"
+            v-html="require('@img/group-edit.svg')"
           />
-          <input
-            :ref="`tagNameInput${index}`"
-            @blur="modifyTagName(tag, index)"
-            @focus="editingName = tag.name"
-            @keyup.enter="modifyTagName(tag, index)"
-            class="list-item__input"
-            maxlength="20"
-            placeholder="输入标签名并回车确定..."
-            type="text"
-            v-if="tag.editing"
-            v-model="editingName"
-          />
-          <div
-            class="list-item__name"
-            v-else
-          >
-            <span class="list-item__text">{{ `${tag.name}(${tag.repos.length})` }}</span>
-            <svg
-              @click="editTag(tag, index)"
-              class="list-item__icon list-item__icon--edit"
-              v-html="require('@img/group-edit.svg')"
-            />
-          </div>
-        </li>
-      </ul>
-      <div class="tag-manage__operate">
-        <button
-          @click="save"
-          class="tag-manage__btn stars-helper-btn stars-helper-btn--highlight"
-        >保存</button>
-      </div>
-    </div>
-  </div>
+        </div>
+      </li>
+    </ul>
+  </popup>
 </template>
 
 <script>
 /* eslint-disable no-console */
 import { cloneDeep } from 'lodash';
+import Popup from '@/content/components/dom/popup';
 
 export default {
   name: 'tag-manage',
   data() {
     return {
-      willDeleteTags: [],
-      willAddTags: [],
       newTagName: '',
-      tags: [],
       editingName: '',
+      tags: [],
+      willAddTags: [],
+      willDeleteTags: [],
     };
   },
   watch: {
@@ -128,6 +120,7 @@ export default {
       this.$store.commit('dom/CLOSE_TAG_MANAGE');
     },
   },
+  components: { Popup },
 };
 </script>
 
@@ -135,48 +128,6 @@ export default {
 @import '~@/assets/less/mixins.less';
 
 .tag-manage {
-  .cover-top(fixed, 99);
-  background-color: rgba(27, 31, 35, 0.5);
-  &__wrapper {
-    background-clip: padding-box;
-    margin: 69px auto;
-    width: 450px;
-    background-color: #fff;
-    border: 1px solid #444d56;
-    border-radius: 3px;
-    box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
-  }
-  &__title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    border-bottom: 1px solid #e1e4e8 !important;
-    border-width: 0 0 1px;
-    margin: 0;
-    padding: 16px;
-    color: #24292e;
-    background-color: #f6f8fa;
-    span {
-      font-size: 14px;
-      font-weight: 600;
-    }
-    button {
-      padding: 0;
-      color: #586069;
-      background-color: transparent;
-      outline: none;
-      border: none;
-      &:hover {
-        color: #0366d6;
-      }
-    }
-    svg {
-      width: 12px;
-      height: 16px;
-    }
-  }
   &__list {
     padding-left: 33px;
     max-height: 340px;
@@ -232,16 +183,6 @@ export default {
         font-weight: 600;
       }
     }
-  }
-  &__operate {
-    position: relative;
-    top: -1px;
-    z-index: 200;
-    padding: 16px;
-    border-top: 1px solid #e1e4e8;
-  }
-  &__btn {
-    width: 200px;
   }
 }
 </style>

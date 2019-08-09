@@ -1,132 +1,121 @@
 <template>
-  <div class="repo">
-    <div class="repo__panel">
-      <h3 class="repo__title">
-        <span>编辑星标仓库</span>
-        <button @click="close">
-          <svg v-html="require('@img/close-con.svg')" />
-        </button>
-      </h3>
-      <div class="repo__wrap">
-        <button
-          @click="toggleStar"
-          class="repo__toggle-star stars-helper-btn"
-        >
-          <svg v-html="require('@img/github-star.svg')" />
-          <span>{{ unStar ? 'Star' : 'Unstar' }}</span>
-        </button>
-        <repo-info :repo="repoEdit" />
-        <!-- 标签 -->
+  <popup
+    @cancel="reset"
+    @close="close"
+    @confirm="save"
+    cancelBtnText="重置"
+    confirmBtnText="保存"
+  >
+    <template v-slot:title>编辑星标仓库</template>
+    <div class="repo__wrap">
+      <button
+        @click="toggleStar"
+        class="repo__toggle-star stars-helper-btn"
+      >
+        <svg v-html="require('@img/github-star.svg')" />
+        <span>{{ unStar ? 'Star' : 'Unstar' }}</span>
+      </button>
+      <repo-info :repo="repoEdit" />
+      <!-- 标签 -->
+      <div
+        @click.self="$refs.tagInput.focus()"
+        class="repo__tags"
+      >
+        <svg
+          class="repo__tags--label"
+          v-html="require('@img/tag-con.svg')"
+        />
         <div
-          @click.self="$refs.tagInput.focus()"
-          class="repo__tags"
+          :key="index"
+          class="repo__tags--item"
+          v-for="(item, index) in tags"
         >
+          <span>{{ item.name }}</span>
           <svg
-            class="repo__tags--label"
-            v-html="require('@img/tag-con.svg')"
+            @click="deleteTag(item, index)"
+            v-html="require('@img/close-con.svg')"
           />
-          <div
-            :key="index"
-            class="repo__tags--item"
-            v-for="(item, index) in tags"
-          >
-            <span>{{ item.name }}</span>
-            <svg
-              @click="deleteTag(item, index)"
-              v-html="require('@img/close-con.svg')"
-            />
-          </div>
-          <div class="repo__tags--input">
-            <input
-              :placeholder="tags.length? '输入标签名' : '添加新标签...'"
-              @blur="toggleExistTags(false)"
-              @focus="toggleExistTags(true)"
-              @keydown.delete="!newTag.length && deleteTag(tags[tags.length - 1], tags.length - 1)"
-              @keydown.enter="addNewTag(newTag)"
-              @keydown.esc="$refs.tagInput.blur(), toggleExistTags(false)"
-              ref="tagInput"
-              type="text"
-              v-model="newTag"
-            />
-            <ul
-              class="repo__tags--suggestion"
-              v-show="showExistTags && filtedExistTags.length"
-            >
-              <li
-                :key="index"
-                @click="addNewTag(item)"
-                v-for="(item, index) in filtedExistTags"
-              >{{ item.name }}</li>
-            </ul>
-          </div>
         </div>
-        <!-- 分组 -->
-        <div class="repo__group">
-          <svg
-            class="repo__group--label"
-            v-html="require('@img/group-con.svg')"
+        <div class="repo__tags--input">
+          <input
+            :placeholder="tags.length? '输入标签名' : '添加新标签...'"
+            @blur="toggleExistTags(false)"
+            @focus="toggleExistTags(true)"
+            @keydown.delete="!newTag.length && deleteTag(tags[tags.length - 1], tags.length - 1)"
+            @keydown.enter="addNewTag(newTag)"
+            @keydown.esc="$refs.tagInput.blur(), toggleExistTags(false)"
+            ref="tagInput"
+            type="text"
+            v-model="newTag"
           />
-          <div
-            class="repo__group--item"
-            v-if="currentGroup.id"
-          >
-            <span @click.self="toggleExistGroups(true)">{{ currentGroup.name }}</span>
-            <svg
-              @click="(currentGroup = '')"
-              v-html="require('@img/close-con.svg')"
-            />
-          </div>
-          <div class="repo__group--input">
-            <input
-              @blur="toggleExistGroups(false)"
-              @focus="toggleExistGroups(true)"
-              @keydown.enter="setGroup(currentGroup)"
-              @keydown.esc="$refs.groupInput.blur(), toggleExistGroups(false)"
-              placeholder="添加到分组..."
-              ref="groupInput"
-              type="text"
-              v-model="currentGroup"
-              v-show="!currentGroup.id"
-            />
-          </div>
           <ul
-            class="repo__group--suggestion"
-            v-show="showExistGroups && filtedExistGroups.length"
+            class="repo__tags--suggestion"
+            v-show="showExistTags && filtedExistTags.length"
           >
             <li
               :key="index"
-              @click="setGroup(item), toggleExistGroups(false)"
-              v-for="(item, index) in filtedExistGroups"
+              @click="addNewTag(item)"
+              v-for="(item, index) in filtedExistTags"
             >{{ item.name }}</li>
           </ul>
         </div>
-        <!-- 备注 -->
-        <div class="repo__remark">
+      </div>
+      <!-- 分组 -->
+      <div class="repo__group">
+        <svg
+          class="repo__group--label"
+          v-html="require('@img/group-con.svg')"
+        />
+        <div
+          class="repo__group--item"
+          v-if="currentGroup.id"
+        >
+          <span @click.self="toggleExistGroups(true)">{{ currentGroup.name }}</span>
           <svg
-            class="repo__remark--label"
-            v-html="require('@img/remark-con.svg')"
+            @click="(currentGroup = '')"
+            v-html="require('@img/close-con.svg')"
           />
-          <div class="repo__remark--input">
-            <input
-              placeholder="添加备注..."
-              type="text"
-              v-model="remark"
-            />
-          </div>
+        </div>
+        <div class="repo__group--input">
+          <input
+            @blur="toggleExistGroups(false)"
+            @focus="toggleExistGroups(true)"
+            @keydown.enter="setGroup(currentGroup)"
+            @keydown.esc="$refs.groupInput.blur(), toggleExistGroups(false)"
+            placeholder="添加到分组..."
+            ref="groupInput"
+            type="text"
+            v-model="currentGroup"
+            v-show="!currentGroup.id"
+          />
+        </div>
+        <ul
+          class="repo__group--suggestion"
+          v-show="showExistGroups && filtedExistGroups.length"
+        >
+          <li
+            :key="index"
+            @click="setGroup(item), toggleExistGroups(false)"
+            v-for="(item, index) in filtedExistGroups"
+          >{{ item.name }}</li>
+        </ul>
+      </div>
+      <!-- 备注 -->
+      <div class="repo__remark">
+        <svg
+          class="repo__remark--label"
+          v-html="require('@img/remark-con.svg')"
+        />
+        <div class="repo__remark--input">
+          <input
+            placeholder="添加备注..."
+            type="text"
+            v-model="remark"
+          />
         </div>
       </div>
-      <div class="repo__operate">
-        <button
-          @click="save"
-          class="repo__operate--btn stars-helper-btn stars-helper-btn--highlight"
-        >保存</button>
-        <button
-          @click="reset"
-          class="repo__operate--btn stars-helper-btn"
-        >重置</button>
-      </div>
     </div>
-  </div>
+  </popup>
 </template>
 
 <script>
@@ -134,6 +123,7 @@
 import { mapState } from 'vuex';
 import { starRepo, unStarRepo } from '@/github/api-v3';
 import RepoInfo from '@/content/components/dom/repo-info';
+import Popup from '@/content/components/dom/popup';
 
 export default {
   name: 'repo',
@@ -229,7 +219,7 @@ export default {
       }
     },
     async toggleStar() {
-      const loading = this.$loading({ mountPoint: '.repo__panel', text: '提交中...' });
+      const loading = this.$loading({ mountPoint: '.popup__panel', text: '提交中...' });
       try {
         if (this.unStar) {
           await starRepo(this.repoEdit.nameWithOwner);
@@ -335,7 +325,10 @@ export default {
       this.$nextTick(() => this.$refs.tagInput && this.$refs.tagInput.focus());
     },
   },
-  components: { RepoInfo },
+  components: {
+    RepoInfo,
+    Popup,
+  },
 };
 </script>
 
@@ -343,47 +336,6 @@ export default {
 @import '~@/assets/less/mixins.less';
 
 .repo {
-  .cover-top(fixed, 99);
-  background-color: rgba(27, 31, 35, 0.5);
-  &__panel {
-    position: relative;
-    background-clip: padding-box;
-    margin: 69px auto;
-    width: 450px;
-    background-color: #fff;
-    border: 1px solid #444d56;
-    border-radius: 3px;
-    box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
-  }
-  &__title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0;
-    padding: 16px;
-    color: #24292e;
-    background-color: #f6f8fa;
-    border-radius: 2px 2px 0 0;
-    border-bottom: 1px solid #e1e4e8 !important;
-    span {
-      font-size: 14px;
-      font-weight: 600;
-    }
-    button {
-      padding: 0;
-      color: #586069;
-      background-color: transparent;
-      outline: none;
-      border: none;
-      &:hover {
-        color: #0366d6;
-      }
-    }
-    svg {
-      width: 12px;
-      height: 16px;
-    }
-  }
   &__wrap {
     position: relative;
     padding: 16px;
@@ -520,19 +472,6 @@ export default {
       input {
         width: 100%;
       }
-    }
-  }
-  &__operate {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    top: -1px;
-    z-index: 200;
-    padding: 16px;
-    border-top: 1px solid #e1e4e8;
-    &--btn {
-      width: 200px;
     }
   }
 }

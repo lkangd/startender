@@ -1,87 +1,79 @@
 <template>
-  <div class="group-manage">
-    <div class="group-manage__panel">
-      <h3 class="group-manage__title">
-        <span>编辑组</span>
-        <button @click="$store.commit('dom/CLOSE_GROUP_MANAGE')">
-          <svg v-html="require('@img/close-con.svg')" />
-        </button>
-      </h3>
-      <div class="group-manage__list">
-        <div class="group-manage__list--item">
-          <svg
-            @click="addGroup"
-            class="group-manage__list--item-add"
-            v-html="require('@img/group-add.svg')"
-          />
-          <input
-            @keyup.enter="addGroup"
-            class="group-manage__list--item-input"
-            maxlength="20"
-            placeholder="输入组名并回车确定..."
-            type="text"
-            v-model="newGroupName"
-          />
-        </div>
-      </div>
-      <SlickList
-        :pressDelay="100"
-        class="group-manage__list"
-        lockAxis="y"
-        v-model="groups"
-      >
-        <SlickItem
-          :index="index"
-          :key="index"
-          class="group-manage__list--item"
-          v-for="(group, index) in groups"
-        >
-          <svg
-            @click="deleteGroup(group, index)"
-            class="group-manage__list--item-delete"
-            v-html="require('@img/group-delete.svg')"
-          />
-          <input
-            :ref="`groupNameInput${index}`"
-            @blur="modifyGroupName(group, index)"
-            @keyup.enter="modifyGroupName(group, index)"
-            class="group-manage__list--item-input"
-            maxlength="20"
-            placeholder="输入组名并回车确定..."
-            type="text"
-            v-if="group.editing"
-            v-model="group.name"
-          />
-          <p
-            class="group-manage__list--item-title"
-            v-else
-          >
-            <span>{{ `${group.name}(${group.repos.length})` }}</span>
-            <svg
-              @click="editGroup(group, index)"
-              class="group-manage__list--item-edit"
-              v-html="require('@img/group-edit.svg')"
-            />
-          </p>
-          <svg
-            class="group-manage__list--item-drag"
-            v-html="require('@img/drag-con.svg')"
-          />
-        </SlickItem>
-      </SlickList>
-      <div class="group-manage__operate">
-        <button
-          @click="save"
-          class="group-manage__operate--btn stars-helper-btn stars-helper-btn--highlight"
-        >保存</button>
+  <popup
+    @close="$store.commit('dom/CLOSE_GROUP_MANAGE')"
+    @confirm="save"
+    confirmBtnText="保存"
+  >
+    <template v-slot:title>分组管理</template>
+    <div class="group-manage__list">
+      <div class="group-manage__list--item">
+        <svg
+          @click="addGroup"
+          class="group-manage__list--item-add"
+          v-html="require('@img/group-add.svg')"
+        />
+        <input
+          @keyup.enter="addGroup"
+          class="group-manage__list--item-input"
+          maxlength="20"
+          placeholder="输入组名并回车确定..."
+          type="text"
+          v-model="newGroupName"
+        />
       </div>
     </div>
-  </div>
+    <SlickList
+      :pressDelay="100"
+      class="group-manage__list"
+      lockAxis="y"
+      v-model="groups"
+    >
+      <SlickItem
+        :index="index"
+        :key="index"
+        class="group-manage__list--item"
+        v-for="(group, index) in groups"
+      >
+        <svg
+          @click="deleteGroup(group, index)"
+          class="group-manage__list--item-delete"
+          v-html="require('@img/group-delete.svg')"
+        />
+        <input
+          :ref="`groupNameInput${index}`"
+          @blur="modifyGroupName(group, index)"
+          @keyup.enter="modifyGroupName(group, index)"
+          class="group-manage__list--item-input"
+          maxlength="20"
+          placeholder="输入组名并回车确定..."
+          type="text"
+          v-if="group.editing"
+          v-model="group.name"
+        />
+        <p
+          class="group-manage__list--item-title"
+          v-else
+        >
+          <span>{{ `${group.name}(${group.repos.length})` }}</span>
+          <svg
+            @click="editGroup(group, index)"
+            class="group-manage__list--item-edit"
+            v-html="require('@img/group-edit.svg')"
+          />
+        </p>
+        <svg
+          class="group-manage__list--item-drag"
+          v-html="require('@img/drag-con.svg')"
+        />
+      </SlickItem>
+    </SlickList>
+  </popup>
 </template>
 
 <script>
 /* eslint-disable no-console */
 import { SlickList, SlickItem } from 'vue-slicksort';
+import Popup from '@/content/components/dom/popup';
 import { cloneDeep } from 'lodash';
 
 export default {
@@ -90,8 +82,8 @@ export default {
     return {
       newGroupName: '',
       groups: [],
-      deletingGroups: [],
       addingGroups: [],
+      deletingGroups: [],
     };
   },
   watch: {
@@ -145,6 +137,7 @@ export default {
   components: {
     SlickItem,
     SlickList,
+    Popup,
   },
 };
 </script>
@@ -153,48 +146,6 @@ export default {
 @import '~@/assets/less/mixins.less';
 
 .group-manage {
-  .cover-top(fixed, 99);
-  background-color: rgba(27, 31, 35, 0.5);
-  &__panel {
-    margin: 69px auto;
-    width: 450px;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #444d56;
-    border-radius: 3px;
-    box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
-  }
-  &__title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 0;
-    padding: 16px;
-    color: #24292e;
-    background-color: #f6f8fa;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 2px;
-    border-bottom: 1px solid #e1e4e8 !important;
-    border-width: 0 0 1px;
-    span {
-      font-size: 14px;
-      font-weight: 600;
-    }
-    button {
-      padding: 0;
-      color: #586069;
-      background-color: transparent;
-      outline: none;
-      border: none;
-      &:hover {
-        color: #0366d6;
-      }
-    }
-    svg {
-      width: 12px;
-      height: 16px;
-    }
-  }
   &__list {
     padding-left: 33px;
     max-height: 340px;
@@ -265,16 +216,6 @@ export default {
         width: 14px;
         height: 14px;
       }
-    }
-  }
-  &__operate {
-    position: relative;
-    top: -1px;
-    z-index: 200;
-    padding: 16px;
-    border-top: 1px solid #e1e4e8;
-    &--btn {
-      width: 200px;
     }
   }
 }
