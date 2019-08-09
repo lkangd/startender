@@ -131,7 +131,7 @@ export default {
     background-color: #cb2431;
   }
   &--warning {
-    background-color: #ff7800;
+    background-color: #e36209;
   }
   &__text {
     margin: 0;

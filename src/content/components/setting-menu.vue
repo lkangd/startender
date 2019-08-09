@@ -1,12 +1,10 @@
 <script>
 /* eslint-disable no-console */
 import { saveAs } from 'file-saver';
-import { mapState } from 'vuex';
 
 import Storage from '@/storage';
-import $storageSync from '@/utils/storage-sync';
-import { getStarredRepos } from '@/github/api-v4';
 import { starRepo } from '@/github/api-v3';
+import $storageSync from '@/utils/storage-sync';
 
 function isVNode(node) {
   return node !== null && typeof node === 'object' && node.hasOwnProperty('componentOptions');
@@ -149,11 +147,6 @@ export default {
       </div>
     );
   },
-  computed: {
-    ...mapState({
-      reposFiltered: state => state.repo.reposFiltered,
-    }),
-  },
   methods: {
     handleClick(evt) {
       if (evt.target !== evt.currentTarget) return;
@@ -175,8 +168,8 @@ export default {
         await Storage.setState();
         try {
           await Promise.all([
-            this.$store.dispatch('group/REVERT_STORE', data.groups),
             this.$store.dispatch('tag/REVERT_STORE', data.tags),
+            this.$store.dispatch('group/REVERT_STORE', data.groups),
             this.$store.dispatch('remark/REVERT_STORE', data.remarks),
           ]);
           loading.update('插件重启中...');
@@ -205,15 +198,19 @@ export default {
             });
         }
       }
+      if (!data.children.length) {
+        this.$toast.warning(`暂无${type}书签数据`);
+        return;
+      }
       chrome.runtime.sendMessage({ action: 'bookmarks', data }, response => {
         this.$toast.success(`导出${type}书签成功!`);
       });
     },
     _generateBookmarkItem(repoID) {
-      if (this.reposFiltered[repoID]) {
+      if (this.$store.state.repo.reposFiltered[repoID]) {
         return {
-          name: this.reposFiltered[repoID].nameWithOwner,
-          url: this.reposFiltered[repoID].url,
+          name: this.$store.state.repo.reposFiltered[repoID].nameWithOwner,
+          url: this.$store.state.repo.reposFiltered[repoID].url,
         };
       }
     },
@@ -284,8 +281,8 @@ export default {
     cursor: pointer;
     user-select: none;
     &:hover {
-      background-color: #0366d6;
       color: #fff;
+      background-color: #0366d6;
     }
   }
   &__input {

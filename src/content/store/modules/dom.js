@@ -1,7 +1,7 @@
 import { debounce } from 'lodash';
 
-const SIDEBAR_MIN_WIDTH = 400;
 const TOGGLE_BTN_WIDTH = 30;
+const SIDEBAR_MIN_WIDTH = 400;
 const saveSidebarWidth = debounce(function(width) {
   localStorage.setItem('stars_helper.sidebar_width', width);
 }, 300);

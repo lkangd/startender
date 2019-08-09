@@ -3,9 +3,9 @@ import Vuex from 'vuex';
 
 import dom from './modules/dom';
 import tag from './modules/tag';
+import repo from './modules/repo';
 import group from './modules/group';
 import remark from './modules/remark';
-import repo from './modules/repo';
 
 Vue.use(Vuex);
 
@@ -13,9 +13,9 @@ export default new Vuex.Store({
   modules: {
     dom,
     tag,
+    repo,
     group,
     remark,
-    repo,
   },
   state: {
     accessToken: '',

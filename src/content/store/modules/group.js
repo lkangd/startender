@@ -7,8 +7,9 @@ export default {
     bars: [],
     controller: null,
     isInstalled: false,
+    UN_GROUPED_ID,
+    ALL_GROUPED_ID,
   },
-  mutations: {},
   actions: {
     async INSTALL_CONTROLLER({ commit, state }, controller) {
       if (state.isInstalled) return;
@@ -47,19 +48,19 @@ export default {
       }
 
       state.bars = bars.filter(Boolean);
-      const unGroup = {
-        id: UN_GROUPED_ID,
-        name: '未分组',
-        repos: rootState.repo.reposID.filter(id => !state.controller.store.repos[id]),
-        order: -1,
-        open: barsOpenStatus[UN_GROUPED_ID],
-      };
       const allGroup = {
         id: ALL_GROUPED_ID,
         name: '所有',
         repos: rootState.repo.reposID,
         order: state.bars.length,
         open: barsOpenStatus[ALL_GROUPED_ID],
+      };
+      const unGroup = {
+        id: UN_GROUPED_ID,
+        name: '未分组',
+        repos: rootState.repo.reposID.filter(id => !state.controller.store.repos[id]),
+        order: -1,
+        open: barsOpenStatus[UN_GROUPED_ID],
       };
       state.bars.push(allGroup);
       state.bars.unshift(unGroup);

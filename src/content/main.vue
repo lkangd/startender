@@ -30,9 +30,9 @@ import GroupManage from './components/group-manage';
 import HeaderBar from './components/header-bar';
 import Repo from './components/repo';
 import ResizeHandler from './components/resize-handler';
+import SettingMenu from './components/setting-menu';
 import TagBar from './components/tag-bar';
 import TagManage from './components/tag-manage';
-import SettingMenu from './components/setting-menu';
 import Toggle from './components/toggle';
 
 const hideGlobalScrollBar = () => $('body').addClass('stars-helper-hide-scroll-bar');
@@ -62,7 +62,6 @@ export default {
 
 <style scoped lang="less">
 #stars-helper {
-  @side-padding: 16px;
   display: flex;
   flex-direction: column;
   position: fixed;
