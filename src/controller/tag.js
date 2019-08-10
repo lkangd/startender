@@ -16,7 +16,7 @@ export default class TagController {
     const existTag = this.nameMap[name];
     if (existTag) {
       const targetTag = this.store.tags[existTag];
-      targetTag.repos.push(String(repoId));
+      repoId && targetTag.repos.push(repoId);
       this._save();
       return existTag;
     }
@@ -36,6 +36,8 @@ export default class TagController {
    * @memberof TagController
    */
   update({ id, name, repos }) {
+    if (!id) return;
+
     this.store.tags[id] = { name, repos };
     this._updateNameMap({ id, name });
     this._save();
@@ -47,12 +49,14 @@ export default class TagController {
    * @memberof TagController
    */
   updateRepo({ id, tagNames }) {
+    if (!id) return;
+
     // initialize current repo tags
     const repoCurrentTags = this.store.repos[id];
     if (repoCurrentTags && repoCurrentTags.length) {
       repoCurrentTags.forEach(tagId => {
         const targetTag = this.store.tags[tagId];
-        targetTag.repos = targetTag.repos.filter(tagId => tagId !== String(id));
+        targetTag.repos = targetTag.repos.filter(tagId => tagId !== id);
       });
     }
     this.store.repos[id] = [];
@@ -61,9 +65,9 @@ export default class TagController {
       const existTagId = this.nameMap[tagName];
       if (existTagId) {
         !this.store.repos[id].includes(existTagId) && this.store.repos[id].push(existTagId);
-        !this.store.tags[existTagId].repos.includes(String(id)) && this.store.tags[existTagId].repos.push(String(id));
+        !this.store.tags[existTagId].repos.includes(id) && this.store.tags[existTagId].repos.push(id);
       } else {
-        const finalTagId = this.add({ name: tagName, repoId: String(id) });
+        const finalTagId = this.add({ name: tagName, repoId: id });
         this.store.repos[id].push(finalTagId);
       }
     });
@@ -77,6 +81,8 @@ export default class TagController {
    * @memberof TagController
    */
   delete(id) {
+    if (!id) return;
+
     const { repos, name } = this.store.tags[id];
     repos.forEach(repoId => {
       this.store.repos[repoId] = this.store.repos[repoId].filter(tagId => tagId !== id);
@@ -104,6 +110,8 @@ export default class TagController {
    * @memberof TagController
    */
   _updateNameMap({ id, name }) {
+    if (!id) return;
+
     for (const key in this.nameMap) {
       if (this.nameMap.hasOwnProperty(key) && this.nameMap[key] === id) {
         delete this.nameMap[key];

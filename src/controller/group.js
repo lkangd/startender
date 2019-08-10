@@ -3,7 +3,6 @@ import shortid from 'shortid';
 
 export default class GroupController {
   constructor() {
-    this.orderBase = 0;
     this.nameMap = {};
     this.store = { groups: {}, repos: {} };
   }
@@ -14,11 +13,11 @@ export default class GroupController {
    * @returns newGroupId
    * @memberof GroupController
    */
-  add({ name, repoId }) {
+  add({ name, repoId, order }) {
     const existGroup = this.nameMap[name];
     if (existGroup) {
       const targetGroup = this.store.groups[existGroup];
-      targetGroup.repos.push(String(repoId));
+      repoId && targetGroup.repos.push(repoId);
       this._save();
       return existGroup;
     }
@@ -27,7 +26,7 @@ export default class GroupController {
     this.nameMap[name] = newGroupId;
     const repos = [];
     repoId && repos.push(repoId);
-    const order = this.orderBase++;
+    order = order === undefined ? Object.keys(this.store.groups).length : order;
 
     this.store.groups[newGroupId] = { name, repos, order };
     this._save();
@@ -40,6 +39,8 @@ export default class GroupController {
    * @memberof GroupController
    */
   update({ id, name, order, repos }) {
+    if (!id) return;
+
     this.store.groups[id] = { name, order, repos };
     this._updateNameMap({ id, name });
     this._save();
@@ -51,6 +52,8 @@ export default class GroupController {
    * @memberof GroupController
    */
   updateRepo({ id, group }) {
+    if (!id) return;
+
     const repoCurrentGroupId = this.store.repos[id];
     // when input group id equal exist one, do nothing
     if (repoCurrentGroupId && repoCurrentGroupId === group.id) {
@@ -59,15 +62,15 @@ export default class GroupController {
     // delete repo from exist group when input group id not equal exist one
     if (repoCurrentGroupId && repoCurrentGroupId !== group.id) {
       const targetGroup = this.store.groups[repoCurrentGroupId];
-      targetGroup.repos = targetGroup.repos.filter(item => item !== String(id));
+      targetGroup.repos = targetGroup.repos.filter(item => item !== id);
     }
     this.store.repos[id] = '';
 
     if (group.id) {
-      !this.store.groups[group.id].repos.includes(id) && this.store.groups[group.id].repos.push(String(id));
+      !this.store.groups[group.id].repos.includes(id) && this.store.groups[group.id].repos.push(id);
       this.store.repos[id] = group.id;
     } else if (group.name) {
-      this.store.repos[id] = this.add({ name: group.name, repoId: String(id) });
+      this.store.repos[id] = this.add({ name: group.name, repoId: id });
     }
     this._save();
   }
@@ -78,6 +81,8 @@ export default class GroupController {
    * @memberof GroupController
    */
   delete(id) {
+    if (!id) return;
+
     const { repos, name } = this.store.groups[id];
     repos.forEach(repoId => {
       delete this.store.repos[repoId];
@@ -93,28 +98,9 @@ export default class GroupController {
    * @memberof GroupController
    */
   clear() {
-    this.orderBase = 0;
     this.nameMap = {};
     this.store = { groups: {}, repos: {} };
     this._save();
-  }
-  /**
-   *
-   *
-   * @memberof GroupController
-   */
-  _initOrder() {
-    const orders = [];
-    for (const key in this.store.groups) {
-      if (this.store.groups.hasOwnProperty(key)) {
-        const { order } = this.store.groups[key];
-        orders.push(order);
-      }
-    }
-    if (orders.length) {
-      const lastOrder = Math.max.apply(null, orders);
-      this.orderBase = lastOrder + 1;
-    }
   }
   /**
    *
@@ -123,6 +109,8 @@ export default class GroupController {
    * @memberof GroupController
    */
   _updateNameMap({ id, name }) {
+    if (!id) return;
+
     for (const key in this.nameMap) {
       if (this.nameMap.hasOwnProperty(key) && this.nameMap[key] === id) {
         delete this.nameMap[key];
@@ -165,7 +153,6 @@ export default class GroupController {
   async init() {
     const result = await Storage.loadState(this);
     this._initNameMap();
-    this._initOrder();
     return result;
   }
   /**

@@ -37,7 +37,7 @@ export default {
 .toggle {
   position: absolute;
   left: -30px;
-  top: 33%;
+  top: 211px;
   z-index: 98;
   display: flex;
   flex-direction: column;

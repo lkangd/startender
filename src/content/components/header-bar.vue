@@ -109,7 +109,7 @@ export default {
       flex: 1;
       padding: 0 8px;
       height: 28px;
-      font-size: 14px;
+      font-size: 13px;
       line-height: 28px;
       color: #fff;
       background-color: transparent;

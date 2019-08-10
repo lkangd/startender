@@ -71,7 +71,6 @@ export default {
       newTagName: '',
       editingName: '',
       tags: [],
-      willAddTags: [],
       willDeleteTags: [],
     };
   },
@@ -105,16 +104,14 @@ export default {
       }
       const newTag = { name: this.newTagName.slice(0, 20).trim(), repos: [] };
       this.tags.unshift(newTag);
-      this.willAddTags.push(newTag);
       this.newTagName = '';
     },
     save() {
-      this.willAddTags.forEach(({ name }) => {
-        if (name === '' || name.trim() === '') return;
-        this.$store.dispatch('tag/ADD', { name });
-      });
+      // [important!] must delete first
       this.willDeleteTags.forEach(tagID => this.$store.dispatch('tag/DELETE', tagID));
-      this.tags.forEach(({ id, name, repos }) => this.$store.dispatch('tag/UPDATE', { id, name, repos }));
+      // [important!] must seperate UPDATE and ADD to different loop, UPDATE first
+      this.tags.forEach(({ id, name, repos }) => id && this.$store.dispatch('tag/UPDATE', { id, name, repos }));
+      this.tags.forEach(({ id, name, repos }) => !id && name && name.trim() && this.$store.dispatch('tag/ADD', { name }));
 
       this.$store.dispatch('repo/SET_FILTER_TAG');
       this.$store.commit('dom/CLOSE_TAG_MANAGE');

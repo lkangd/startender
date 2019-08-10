@@ -82,8 +82,7 @@ export default {
     return {
       newGroupName: '',
       groups: [],
-      addingGroups: [],
-      deletingGroups: [],
+      willDeleteGroups: [],
     };
   },
   watch: {
@@ -108,7 +107,7 @@ export default {
       }, 50);
     },
     deleteGroup({ id }, index) {
-      id && this.deletingGroups.push(id);
+      id && this.willDeleteGroups.push(id);
       this.groups.splice(index, 1);
     },
     addGroup() {
@@ -117,18 +116,14 @@ export default {
       }
       const newGroup = { name: this.newGroupName.slice(0, 20).trim(), repos: [] };
       this.groups.unshift(newGroup);
-      this.addingGroups.push(newGroup);
       this.newGroupName = '';
     },
     save() {
-      this.addingGroups.forEach(newGroup => {
-        if (newGroup.name === '' || newGroup.name.trim() === '') {
-          return;
-        }
-        this.$store.dispatch('group/ADD', { name: newGroup.name });
-      });
-      this.deletingGroups.forEach(groupID => this.$store.dispatch('group/DELETE', groupID));
-      this.groups.forEach(({ id, name, repos }, order) => this.$store.dispatch('group/UPDATE', { id, name, repos, order }));
+      // [important!] must delete first
+      this.willDeleteGroups.forEach(groupID => this.$store.dispatch('group/DELETE', groupID));
+      // [important!] must seperate UPDATE and ADD to different loop, UPDATE first
+      this.groups.forEach(({ id, name, repos }, order) => id && this.$store.dispatch('group/UPDATE', { id, name, repos, order }));
+      this.groups.forEach(({ id, name, repos }, order) => !id && name && name.trim() && this.$store.dispatch('group/ADD', { name, order }));
 
       this.$store.dispatch('group/UPDATE_BARS');
       this.$store.commit('dom/CLOSE_GROUP_MANAGE');
