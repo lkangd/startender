@@ -44,8 +44,10 @@ export default {
       state.bars = [];
       for (const id in tags) {
         if (tags.hasOwnProperty(id)) {
-          const { name, repos } = tags[id];
-          state.bars.push({ id, name, repos });
+          let { name, repos } = tags[id];
+          // filter
+          repos = repos.filter(repoId => rootState.repo.reposBaseID.includes(repoId) || state.controller.updateRepo({ id: repoId }));
+          state.bars.push({ id, name, repos, count: repos.length });
         }
       }
       state.bars.sort((a, b) => {
@@ -56,7 +58,7 @@ export default {
         }
       });
 
-      const allTagCount = rootState.repo.reposBase.length;
+      const allTagCount = rootState.repo.reposBaseID.length;
       const unTagCount = allTagCount - Object.keys(repos).length;
       const allTag = {
         id: ALL_TAGED_ID,
@@ -70,6 +72,7 @@ export default {
       };
       state.bars.push(unTag);
       state.bars.unshift(allTag);
+      // console.log('state.bars :', state.bars);
     },
   },
 };

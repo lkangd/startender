@@ -1,6 +1,6 @@
 <template>
   <ul class="repos">
-    <template v-if="reposID.length">
+    <template v-if="reposFilteredID.length">
       <li
         :key="repoID"
         class="repos__item"
@@ -62,7 +62,7 @@ export default {
   computed: {
     ...mapState({
       reposFiltered: state => state.repo.reposFiltered,
-      reposID: state => state.repo.reposID,
+      reposFilteredID: state => state.repo.reposFilteredID,
     }),
   },
   methods: {

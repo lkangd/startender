@@ -10,7 +10,9 @@
         @click="$set(group, 'open', !group.open)"
         class="group__bar"
       >
-        <h4 class="group__title">{{ group.name }}({{ group.repos.length }})</h4>
+        <h4
+          class="group__title"
+        >{{ group.name }}({{ group.repos.length }}{{ isFiltered && group.count && `/${group.count}` || '' }})</h4>
         <svg
           class="group__dot"
           v-html="require('@img/group-dot.svg')"
@@ -30,6 +32,15 @@ import Repos from '@/content/components/repos';
 
 export default {
   name: 'group-list',
+  computed: {
+    isFiltered() {
+      return !!(
+        this.$store.state.dom.highlightText ||
+        this.$store.state.repo.filteredLanguage ||
+        String(this.$store.state.tag.filteredTagID) !== 'Symbol(ALL_TAGED_ID)'
+      );
+    },
+  },
   components: { Repos },
 };
 </script>

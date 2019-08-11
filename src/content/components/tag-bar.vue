@@ -6,7 +6,7 @@
       @click="handleClick(item.id)"
       class="tag-bar__item"
       v-for="(item, index) in $store.state.tag.bars"
-    >{{ `${item.name}(${ item.count || item.repos.length})` }}</li>
+    >{{ `${item.name}(${item.count})` }}</li>
   </ol>
 </template>
 

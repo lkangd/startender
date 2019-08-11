@@ -48,7 +48,7 @@ export default class TagController {
    * @param {Object} repo { id: string, tagNames: [string...] }
    * @memberof TagController
    */
-  updateRepo({ id, tagNames }) {
+  updateRepo({ id, tagNames = [] }) {
     if (!id) return;
 
     // initialize current repo tags

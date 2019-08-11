@@ -51,7 +51,7 @@ export default class GroupController {
    * @param {Object} repo { id: string, group: { id: string, name: string } }
    * @memberof GroupController
    */
-  updateRepo({ id, group }) {
+  updateRepo({ id, group = {} }) {
     if (!id) return;
 
     const repoCurrentGroupId = this.store.repos[id];
@@ -71,6 +71,8 @@ export default class GroupController {
       this.store.repos[id] = group.id;
     } else if (group.name) {
       this.store.repos[id] = this.add({ name: group.name, repoId: id });
+    } else {
+      delete this.store.repos[id];
     }
     this._save();
   }

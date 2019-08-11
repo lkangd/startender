@@ -41,9 +41,10 @@ export default {
         if (groups.hasOwnProperty(id)) {
           let { name, order, repos, open } = groups[id];
           // sort && filter
-          repos = rootState.repo.reposID.filter(repoID => repos.includes(repoID));
+          const count = repos.length;
+          repos = rootState.repo.reposFilteredID.filter(repoID => repos.includes(repoID));
           open = repos.length ? barsOpenStatus[id] : false;
-          bars[order] = { id, name, repos, order, open };
+          bars[order] = { id, name, repos, order, open, count };
         }
       }
 
@@ -51,14 +52,16 @@ export default {
       const allGroup = {
         id: ALL_GROUPED_ID,
         name: '所有',
-        repos: rootState.repo.reposID,
+        repos: rootState.repo.reposFilteredID,
+        count: rootState.repo.reposBaseID.length,
         order: state.bars.length,
         open: barsOpenStatus[ALL_GROUPED_ID],
       };
       const unGroup = {
         id: UN_GROUPED_ID,
         name: '未分组',
-        repos: rootState.repo.reposID.filter(id => !state.controller.store.repos[id]),
+        repos: rootState.repo.reposFilteredID.filter(id => !state.controller.store.repos[id]),
+        count: rootState.repo.reposBaseID.filter(id => !state.controller.store.repos[id]).length,
         order: -1,
         open: barsOpenStatus[UN_GROUPED_ID],
       };

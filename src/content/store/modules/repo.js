@@ -6,9 +6,10 @@ export default {
   namespaced: true,
   state: {
     repoEdit: null,
-    reposID: [],
     reposBase: [],
+    reposBaseID: [],
     reposFiltered: {},
+    reposFilteredID: [],
     reposLanguage: [],
 
     controller: null,
@@ -25,13 +26,13 @@ export default {
       const repos = state.controller.run(state.reposBase);
 
       state.reposFiltered = {};
-      state.reposID = [];
+      state.reposFilteredID = [];
       for (let i = 0, repo; (repo = repos[i++]); ) {
         state.reposFiltered[repo.id] = repo;
-        state.reposID.push(repo.id);
+        state.reposFilteredID.push(repo.id);
       }
       dispatch('tag/UPDATE_BARS', null, { root: true });
-      dispatch('group/UPDATE_BARS', state.reposID, { root: true });
+      dispatch('group/UPDATE_BARS', state.reposFilteredID, { root: true });
     },
     UNSTAR_REPO({ state, dispatch }, repo) {
       state.reposBase.splice(repo.repoIndex, 1);
@@ -74,9 +75,11 @@ export default {
     async UPDATE_REPOS_BASE({ state, dispatch }, useCache = true) {
       if (useCache) {
         const reposBase = JSON.parse(localStorage.getItem('stars_helper.starred_repos'));
+        const reposBaseID = JSON.parse(localStorage.getItem('stars_helper.starred_repos_id'));
         const reposLanguage = JSON.parse(localStorage.getItem('stars_helper.languages_count'));
         if (reposBase && reposLanguage) {
           state.reposBase = deepFreeze(reposBase, false);
+          state.reposBaseID = reposBaseID;
           state.reposLanguage = reposLanguage;
           dispatch('FILTER_REPOS');
           Toast('使用缓存列表数据');
@@ -86,11 +89,13 @@ export default {
 
       const repos = await getStarredRepos();
       const reposBase = [];
+      const reposBaseID = [];
       state.reposLanguage = {};
       for (let i = 0, repo; (repo = repos[i]); ) {
         repo = repo.node;
         repo.repoIndex = i++;
         reposBase.push(Object.freeze(repo));
+        reposBaseID.push(repo.id);
         if (!repo.primaryLanguage) continue;
         if (state.reposLanguage[repo.primaryLanguage.name]) {
           state.reposLanguage[repo.primaryLanguage.name]++;
@@ -99,7 +104,9 @@ export default {
         }
       }
       state.reposBase = reposBase;
+      state.reposBaseID = reposBaseID;
       localStorage.setItem('stars_helper.starred_repos', JSON.stringify(state.reposBase));
+      localStorage.setItem('stars_helper.starred_repos_id', JSON.stringify(state.reposBaseID));
       localStorage.setItem('stars_helper.languages_count', JSON.stringify(state.reposLanguage));
       dispatch('FILTER_REPOS');
     },
