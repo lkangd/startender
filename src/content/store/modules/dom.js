@@ -5,11 +5,15 @@ const SIDEBAR_MIN_WIDTH = 400;
 const saveSidebarWidth = debounce(function(width) {
   localStorage.setItem('stars_helper.sidebar_width', width);
 }, 300);
+const toggleGlobalScrollBar = bool => {
+  const { classList } = document.querySelector('body');
+  classList[(bool && 'add') || 'remove']('stars-helper-hide-scroll-bar');
+};
 
 export default {
   namespaced: true,
   state: {
-    showPanel: true,
+    showPanel: false,
     showRepoEdit: false,
     showTagManage: false,
     showGroupManage: false,
@@ -31,9 +35,11 @@ export default {
     },
     OPEN_PANEL(state) {
       state.showPanel = true;
+      toggleGlobalScrollBar(true);
     },
     CLOSE_PANEL(state) {
       state.showPanel = false;
+      toggleGlobalScrollBar(false);
     },
     OPEN_REPO_EDIT(state) {
       state.showRepoEdit = true;

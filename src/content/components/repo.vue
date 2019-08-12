@@ -5,8 +5,8 @@
     @confirm="save"
     cancelBtnText="重置"
     confirmBtnText="保存"
+    title="编辑星标仓库"
   >
-    <template v-slot:title>编辑星标仓库</template>
     <div class="repo__wrap">
       <button
         @click="toggleStar"
@@ -123,7 +123,6 @@
 import { mapState } from 'vuex';
 import { starRepo, unStarRepo } from '@/github/api-v3';
 import RepoInfo from '@/content/components/dom/repo-info';
-import Popup from '@/content/components/dom/popup';
 
 export default {
   name: 'repo',
@@ -326,10 +325,7 @@ export default {
       this.$nextTick(() => this.$refs.tagInput && this.$refs.tagInput.focus());
     },
   },
-  components: {
-    RepoInfo,
-    Popup,
-  },
+  components: { RepoInfo },
 };
 </script>
 

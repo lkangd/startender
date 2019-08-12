@@ -1,29 +1,34 @@
 <template>
-  <transition name="show">
+  <transition
+    @after-leave="handleAfterLeave"
+    name="show"
+  >
     <div
       class="popup"
-      v-show="show"
+      v-show="visible"
     >
       <div class="popup__panel">
         <!-- title -->
         <h3 class="popup__title">
-          <span>
-            <slot name="title"></slot>
-          </span>
-          <button @click="$emit('close')">
+          <span>{{ title }}</span>
+          <button @click="handleClose">
             <svg v-html="require('@img/close-con.svg')" />
           </button>
         </h3>
         <!-- slot -->
-        <slot></slot>
+        <div
+          class="popup__default-text"
+          v-if="text"
+        >{{ text }}</div>
+        <slot v-else></slot>
         <!-- btns -->
         <div class="popup__operations">
           <button
-            @click="$emit('confirm')"
+            @click="handleConfirm"
             class="popup__btn stars-helper-btn stars-helper-btn--highlight"
           >{{ confirmBtnText }}</button>
           <button
-            @click="$emit('cancel')"
+            @click="handleCancel"
             class="popup__btn stars-helper-btn"
             v-if="cancelBtnText"
           >{{ cancelBtnText }}</button>
@@ -38,18 +43,45 @@
 
 export default {
   name: 'popup',
-  props: {
-    show: {
-      type: Boolean,
-      default: true,
+  watch: {
+    closed(newVal) {
+      newVal && (this.visible = false);
     },
-    confirmBtnText: {
-      type: String,
-      default: '确定',
+  },
+  created() {
+    // console.log('this.text :', this.text);
+  },
+  methods: {
+    handleAfterLeave() {
+      this.$destroy(true);
+      this.$el.parentNode.removeChild(this.$el);
     },
-    cancelBtnText: {
-      type: String,
-      default: '',
+    close() {
+      this.closed = true;
+    },
+    handleConfirm() {
+      if (typeof this.handleConfirmResolve === 'function') {
+        this.handleConfirmResolve('confirm');
+        this.close();
+      } else {
+        this.$emit('confirm');
+      }
+    },
+    handleCancel() {
+      if (typeof this.handleCancelReject === 'function') {
+        this.handleCancelReject('cancel');
+        this.close();
+      } else {
+        this.$emit('cancel');
+      }
+    },
+    handleClose() {
+      if (typeof this.handleCancelReject === 'function') {
+        this.handleCancelReject('close');
+        this.close();
+      } else {
+        this.$emit('close');
+      }
     },
   },
 };
@@ -101,6 +133,11 @@ export default {
         height: 16px;
       }
     }
+  }
+  &__default-text {
+    padding: 30px 20px;
+    text-align: center;
+    font-size: 13px;
   }
   &__operations {
     display: flex;

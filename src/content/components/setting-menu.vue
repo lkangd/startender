@@ -61,19 +61,30 @@ export default {
           },
           {
             name: '清除数据',
-            async action() {
-              const loading = this.$loading('数据清除中...');
-              try {
-                await $storageSync.clear();
-                localStorage.removeItem('stars_helper.starred_repos');
-                loading.update('插件重启中...');
-                this.$toast.success('清除管理数据成功');
-                window.location.reload();
-              } catch (e) {
-                loading.update('插件重启中...');
-                this.$toast.error('清除管理数据失败');
-                window.location.reload();
-              }
+            action() {
+              this.$popup({
+                title: '清除管理数据',
+                text: '清除所有数据并重启插件？'
+              })
+                .then(async () => {
+                  this.$toast.success('清除确定');
+                  return;
+                  const loading = this.$loading('数据清除中...');
+                  try {
+                    await $storageSync.clear();
+                    localStorage.removeItem('stars_helper.starred_repos');
+                    loading.update('插件重启中...');
+                    this.$toast.success('清除管理数据成功');
+                    window.location.reload();
+                  } catch (e) {
+                    loading.update('插件重启中...');
+                    this.$toast.error('清除管理数据失败');
+                    window.location.reload();
+                  }
+                })
+                .catch(() => {
+                  this.$toast.success('清除取消');
+                });
             },
           },
         ],

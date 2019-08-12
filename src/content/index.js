@@ -13,6 +13,7 @@ import RemarkController from '@/controller/remark';
 import FilterController from '@/controller/filter';
 
 import { highlight } from '@/utils/vue-directives';
+import Popup from '@/content/components/Popup/index';
 import Toast from '@/content/components/toast/index';
 import Loading from '@/content/components/loading/index';
 import { formatUpdate, formatNumber } from '@/utils/vue-filters';
@@ -20,6 +21,7 @@ import { formatUpdate, formatNumber } from '@/utils/vue-filters';
 Vue.directive('highlight', highlight);
 Vue.filter('formatUpdate', formatUpdate);
 Vue.filter('formatNumber', formatNumber);
+Vue.use(Popup);
 Vue.use(Toast, { mountPoint: '#stars-helper' });
 Vue.use(Loading, { mountPoint: '#stars-helper' });
 

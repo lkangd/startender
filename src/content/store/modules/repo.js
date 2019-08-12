@@ -82,7 +82,7 @@ export default {
           state.reposBaseID = reposBaseID;
           state.reposLanguage = reposLanguage;
           dispatch('FILTER_REPOS');
-          Toast('使用缓存列表数据');
+          Toast({ mountPoint: '#stars-helper', text: '使用缓存列表数据' });
           return;
         }
       }

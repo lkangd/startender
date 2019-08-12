@@ -3,8 +3,8 @@
     @close="$store.commit('dom/CLOSE_GROUP_MANAGE')"
     @confirm="save"
     confirmBtnText="保存"
+    title="分组管理"
   >
-    <template v-slot:title>分组管理</template>
     <div class="group-manage__list">
       <div class="group-manage__list--item">
         <svg
@@ -73,7 +73,6 @@
 <script>
 /* eslint-disable no-console */
 import { SlickList, SlickItem } from 'vue-slicksort';
-import Popup from '@/content/components/dom/popup';
 import { cloneDeep } from 'lodash';
 
 export default {
@@ -132,7 +131,6 @@ export default {
   components: {
     SlickItem,
     SlickList,
-    Popup,
   },
 };
 </script>

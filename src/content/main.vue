@@ -35,13 +35,11 @@ import TagBar from './components/tag-bar';
 import TagManage from './components/tag-manage';
 import Toggle from './components/toggle';
 
-const hideGlobalScrollBar = () => $('body').addClass('stars-helper-hide-scroll-bar');
-
 export default {
   name: 'stars-helper',
-  async mounted() {
-    hideGlobalScrollBar();
-    await this.$store.dispatch('repo/UPDATE_REPOS_BASE');
+  mounted() {
+    this.$store.commit('dom/OPEN_PANEL');
+    this.$store.dispatch('repo/UPDATE_REPOS_BASE');
   },
   components: {
     Authorize,

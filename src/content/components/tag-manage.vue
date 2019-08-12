@@ -3,8 +3,8 @@
     @close="$store.commit('dom/CLOSE_TAG_MANAGE')"
     @confirm="save"
     confirmBtnText="保存"
+    title="标签管理"
   >
-    <template v-slot:title>标签管理</template>
     <ul class="tag-manage__list">
       <li class="list-item">
         <svg
@@ -62,7 +62,6 @@
 <script>
 /* eslint-disable no-console */
 import { cloneDeep } from 'lodash';
-import Popup from '@/content/components/dom/popup';
 
 export default {
   name: 'tag-manage',
@@ -117,7 +116,6 @@ export default {
       this.$store.commit('dom/CLOSE_TAG_MANAGE');
     },
   },
-  components: { Popup },
 };
 </script>
 
