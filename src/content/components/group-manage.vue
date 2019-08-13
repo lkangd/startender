@@ -1,5 +1,6 @@
 <template>
   <popup
+    :visible.sync="visible"
     @close="$store.commit('dom/CLOSE_GROUP_MANAGE')"
     @confirm="save"
     confirmBtnText="保存"
@@ -82,6 +83,7 @@ export default {
       newGroupName: '',
       groups: [],
       willDeleteGroups: [],
+      visible: false,
     };
   },
   watch: {
@@ -91,6 +93,9 @@ export default {
         this.groups = cloneDeep(newVal).slice(1, -1);
       },
     },
+  },
+  mounted() {
+    this.visible = true;
   },
   methods: {
     modifyGroupName(group, index) {

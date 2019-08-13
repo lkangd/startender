@@ -42,13 +42,31 @@ export default {
           {
             name: '备份数据',
             action() {
-              const { tags } = this.$store.state.tag.controller.store;
-              const { groups } = this.$store.state.group.controller.store;
-              const remarks = this.$store.state.remark.controller.store;
-              const data = JSON.stringify({ groups, tags, remarks }, null, 2);
-              const file = new File([data], 'github-stars-helper.json', { type: 'text/plain;charset=utf-8' });
-              saveAs(file);
-              this.$toast.success('备份管理数据成功');
+              let backupFileName = 'github-stars-helper';
+              const changeBackupFileName = $event => (backupFileName = $event.target.value);
+              this.$popup({
+                title: `备份管理数据书签`,
+                text: (
+                  <ul class="setting-menu__popup">
+                    <li class="setting-menu__select">
+                      <span>备份文件名称:</span>
+                      <input type="text" value={backupFileName} placeholder="github-stars-helper.json" onInput={changeBackupFileName}></input>
+                    </li>
+                  </ul>
+                ),
+                confirmBtnText: '立即备份',
+                cancelBtnText: '取消',
+              })
+                .then(() => {
+                  const { tags } = this.$store.state.tag.controller.store;
+                  const { groups } = this.$store.state.group.controller.store;
+                  const remarks = this.$store.state.remark.controller.store;
+                  const data = JSON.stringify({ groups, tags, remarks }, null, 2);
+                  const file = new File([data], `${backupFileName || 'github-stars-helper'}.json`, { type: 'text/plain;charset=utf-8' });
+                  saveAs(file);
+                  this.$toast.success('备份管理数据成功');
+                })
+                .catch(() => {});
             },
           },
           {
@@ -62,17 +80,66 @@ export default {
           {
             name: '清除数据',
             action() {
+              const clearOptions = [
+                {
+                  name: '授权 Access Token',
+                  checked: false,
+                  action: () => $storageSync.delete('GITHUB_STARS_HELPER_ACCESS_TOKEN'),
+                },
+                {
+                  name: '标签数据',
+                  checked: false,
+                  action: () => this.$store.dispatch('tag/REVERT_STORE', {}),
+                },
+                {
+                  name: '分组数据',
+                  checked: false,
+                  action: () => this.$store.dispatch('group/REVERT_STORE', {}),
+                },
+                {
+                  name: '备注数据',
+                  checked: false,
+                  action: () => this.$store.dispatch('remark/REVERT_STORE', {}),
+                },
+                {
+                  name: '星标仓库数据',
+                  checked: false,
+                  action: () => {
+                    localStorage.removeItem('stars_helper.starred_repos');
+                    localStorage.removeItem('stars_helper.starred_repos_id');
+                    localStorage.removeItem('stars_helper.languages_count');
+                    localStorage.removeItem('stars_helper.project_starred');
+                  },
+                },
+              ];
+              const hanleOptionCheck = (option, $event) => (option.checked = $event.target.checked);
               this.$popup({
                 title: '清除管理数据',
-                text: '清除所有数据并重启插件？'
+                text: (
+                  <ul class="setting-menu__popup">
+                    <li class="setting-menu__select">
+                      <span>选择需要清除的数据:</span>
+                    </li>
+                    {clearOptions.map((option, index) => (
+                      <li class="setting-menu__select">
+                        <input type="checkbox" id={`checkbox${index}`} onInput={hanleOptionCheck.bind(null, option)}></input>
+                        <label for={`checkbox${index}`}>{option.name}</label>
+                      </li>
+                    ))}
+                    <li class="setting-menu__select">
+                      <i>Tip: !!! 请确保已备份重要数据 !!!</i>
+                    </li>
+                  </ul>
+                ),
+                confirmBtnText: '立即清除',
+                cancelBtnText: '取消',
               })
                 .then(async () => {
-                  this.$toast.success('清除确定');
-                  return;
                   const loading = this.$loading('数据清除中...');
                   try {
-                    await $storageSync.clear();
-                    localStorage.removeItem('stars_helper.starred_repos');
+                    const actions = clearOptions.filter(option => option.checked).map(async option => await option.action());
+                    for (const action of actions) await action;
+
                     loading.update('插件重启中...');
                     this.$toast.success('清除管理数据成功');
                     window.location.reload();
@@ -82,9 +149,7 @@ export default {
                     window.location.reload();
                   }
                 })
-                .catch(() => {
-                  this.$toast.success('清除取消');
-                });
+                .catch(() => {});
             },
           },
         ],
@@ -92,23 +157,15 @@ export default {
           {
             name: '导出分组书签',
             action() {
-              const data = {
-                name: 'Github Starred Repos Groups',
-                children: [],
-              };
               const { groups } = this.$store.state.group.controller.store;
-              this._generateBookmarks(data, groups, '分组');
+              this._generateBookmarks(groups, '分组');
             },
           },
           {
             name: '导出标签书签',
             action() {
-              const data = {
-                name: 'Github Starred Repos Tags',
-                children: [],
-              };
               const { tags } = this.$store.state.tag.controller.store;
-              this._generateBookmarks(data, tags, '标签');
+              this._generateBookmarks(tags, '标签');
             },
           },
         ],
@@ -136,27 +193,6 @@ export default {
         ],
       ],
     };
-  },
-  render(h) {
-    return (
-      <div class="setting-menu redredred" onClick={this.handleClick}>
-        <ul class="setting-menu__list">
-          {this.menus.map(sublist => (
-            <li class="setting-menu__sub-list">
-              {sublist.map(item => {
-                if (item.hidden) return;
-                if (isVNode(item.name)) return item.name;
-                return (
-                  <div class="setting-menu__item" onClick={this.handleAction.bind(this, item.action)}>
-                    {item.name}
-                  </div>
-                );
-              })}
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
   },
   methods: {
     handleClick(evt) {
@@ -198,33 +234,98 @@ export default {
       };
       reader.readAsText(file);
     },
-    _generateBookmarks(data, source, type) {
-      for (const key in source) {
-        if (source.hasOwnProperty(key)) {
-          const folder = source[key];
-          folder.repos.length &&
-            data.children.push({
-              name: folder.name,
-              children: folder.repos.map(this._generateBookmarkItem),
-            });
+    _generateBookmarks(source, type) {
+      const data = { children: [] };
+      for (const id in source) {
+        if (source.hasOwnProperty(id)) {
+          const folder = source[id];
+          const bookmark = {
+            name: folder.name,
+            children: folder.repos.map(this._generateBookmarkItem),
+            checked: true,
+          };
+          if (folder.order === undefined) {
+            data.children.push(bookmark);
+          } else {
+            data.children[folder.order] = bookmark;
+          }
         }
       }
+      data.children = data.children.filter(folder => folder && folder.children.length);
       if (!data.children.length) {
         this.$toast.warning(`暂无${type}书签数据`);
         return;
       }
-      chrome.runtime.sendMessage({ action: 'bookmarks', data }, response => {
-        this.$toast.success(`导出${type}书签成功!`);
+      const names = {
+        分组: 'Github Starred Repos Groups',
+        标签: 'Github Starred Repos Tags',
+      };
+      let exportingBmFolderName = names[type];
+      const changeExportingBmFolderName = $event => (exportingBmFolderName = $event.target.value);
+      const hanleBmFolderCheck = (folder, $event) => (folder.checked = $event.target.checked);
+
+      this.$popup({
+        title: `根据${type}导出书签`,
+        text: (
+          <ul class="setting-menu__popup">
+            <li class="setting-menu__select">
+              <span>书签目录名称:</span>
+              <input type="text" value={exportingBmFolderName} placeholder={names[type]} onInput={changeExportingBmFolderName}></input>
+            </li>
+            {data.children.map((folder, index) => (
+              <li class="setting-menu__select select-item">
+                <input checked type="checkbox" id={`checkbox${index}`} onInput={hanleBmFolderCheck.bind(null, folder)}></input>
+                <label for={`checkbox${index}`}>
+                  {folder.name}({folder.children.length})
+                </label>
+              </li>
+            ))}
+          </ul>
+        ),
+        confirmBtnText: '立即导出',
+        cancelBtnText: '取消',
+      }).then(() => {
+        data.name = exportingBmFolderName || names[type];
+        data.children = data.children.filter(folder => folder.checked);
+        if (!data.children.length) {
+          this.$toast.warning(`不能导出空书签数据`);
+          return;
+        }
+        chrome.runtime.sendMessage({ action: 'bookmarks', data }, response => {
+          this.$toast.success(`导出${type}书签成功!`);
+        });
       });
     },
     _generateBookmarkItem(repoID) {
       if (this.$store.state.repo.reposFiltered[repoID]) {
+        const { nameWithOwner, url } = this.$store.state.repo.reposFiltered[repoID];
         return {
-          name: this.$store.state.repo.reposFiltered[repoID].nameWithOwner,
-          url: this.$store.state.repo.reposFiltered[repoID].url,
+          name: nameWithOwner,
+          url,
         };
       }
     },
+  },
+  render(h) {
+    return (
+      <div class="setting-menu redredred" onClick={this.handleClick}>
+        <ul class="setting-menu__list">
+          {this.menus.map(sublist => (
+            <li class="setting-menu__sub-list">
+              {sublist.map(item => {
+                if (item.hidden) return;
+                if (isVNode(item.name)) return item.name;
+                return (
+                  <div class="setting-menu__item" onClick={this.handleAction.bind(this, item.action)}>
+                    {item.name}
+                  </div>
+                );
+              })}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
   },
 };
 </script>
@@ -303,6 +404,43 @@ export default {
     outline: none;
     background-color: transparent;
     opacity: 0;
+  }
+  &__popup {
+    padding: 30px 40px;
+    max-height: 400px;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+    text-align: left;
+    font-size: 13px;
+    list-style: none;
+  }
+  &__select {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 600;
+    & + & {
+      margin-top: 10px;
+    }
+    > label {
+      flex: 1;
+      padding-left: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #24292e;
+      user-select: none;
+    }
+    > input {
+      &:not([type='checkbox']) {
+        flex: 1;
+        margin-left: 10px;
+      }
+    }
+    > i {
+      font-size: 12px;
+      font-weight: 400;
+      color: rgb(88, 96, 105);
+    }
   }
 }
 </style>

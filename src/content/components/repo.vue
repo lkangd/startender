@@ -1,6 +1,7 @@
 <template>
   <popup
-    @cancel="reset"
+    :visible.sync="visible"
+    :cancalCallback="reset"
     @close="close"
     @confirm="save"
     cancelBtnText="重置"
@@ -137,7 +138,11 @@ export default {
       newTag: '',
       remark: '',
       unStar: false,
+      visible: false,
     };
+  },
+  mounted() {
+    this.visible = true;
   },
   watch: {
     '$store.state.dom.showRepoEdit': {

@@ -1,7 +1,7 @@
 <template>
   <transition
     @after-leave="handleAfterLeave"
-    name="show"
+    name="popup-fade"
   >
     <div
       class="popup"
@@ -15,12 +15,15 @@
             <svg v-html="require('@img/close-con.svg')" />
           </button>
         </h3>
-        <!-- slot -->
-        <div
-          class="popup__default-text"
-          v-if="text"
-        >{{ text }}</div>
-        <slot v-else></slot>
+        <!-- content -->
+        <div class="popup__content-wrapper">
+          <pre
+            class="popup__default-text"
+            v-if="text"
+          >{{ text }}</pre>
+          <!-- slot -->
+          <slot v-else></slot>
+        </div>
         <!-- btns -->
         <div class="popup__operations">
           <button
@@ -40,21 +43,43 @@
 
 <script>
 /* eslint-disable no-console */
+const toggleBodyScroll = bool => {
+  const { classList } = document.querySelector('body');
+  classList[(bool && 'remove') || 'add']('stars-helper-fixed-body');
+};
 
 export default {
   name: 'popup',
+  data() {
+    return {
+      closed: false,
+    };
+  },
   watch: {
     closed(newVal) {
-      newVal && (this.visible = false);
+      if (newVal) {
+        if (this.$parent) {
+          this.$emit('update:visible', false);
+        } else {
+          this.visible = false;
+        }
+      }
     },
   },
-  created() {
-    // console.log('this.text :', this.text);
+  mounted() {
+    toggleBodyScroll(false);
+  },
+  beforeDestroy() {
+    toggleBodyScroll(true);
   },
   methods: {
     handleAfterLeave() {
-      this.$destroy(true);
-      this.$el.parentNode.removeChild(this.$el);
+      if (this.$parent) {
+        this.$emit(this.emitType);
+      } else {
+        this.$destroy(true);
+        this.$el.parentNode.removeChild(this.$el);
+      }
     },
     close() {
       this.closed = true;
@@ -62,26 +87,27 @@ export default {
     handleConfirm() {
       if (typeof this.handleConfirmResolve === 'function') {
         this.handleConfirmResolve('confirm');
-        this.close();
-      } else {
-        this.$emit('confirm');
       }
+      this.close();
+      this.emitType = 'confirm';
     },
     handleCancel() {
+      if (typeof this.cancalCallback === 'function') {
+        this.cancalCallback();
+        return;
+      }
       if (typeof this.handleCancelReject === 'function') {
         this.handleCancelReject('cancel');
-        this.close();
-      } else {
-        this.$emit('cancel');
       }
+      this.close();
+      this.emitType = 'cancel';
     },
     handleClose() {
       if (typeof this.handleCancelReject === 'function') {
         this.handleCancelReject('close');
-        this.close();
-      } else {
-        this.$emit('close');
       }
+      this.close();
+      this.emitType = 'close';
     },
   },
 };
@@ -90,9 +116,19 @@ export default {
 <style scoped lang="less">
 @import '~@/assets/less/mixins.less';
 
+@keyframes slide-down {
+  0% {
+    transform: translateY(-100px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
 .popup {
   .cover-top(fixed, 99);
   background-color: rgba(27, 31, 35, 0.5);
+  .transitions(popup-fade, opacity, 0);
   &__panel {
     position: relative;
     margin: 69px auto;
@@ -102,6 +138,7 @@ export default {
     border: 1px solid #444d56;
     border-radius: 3px;
     box-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
+    animation: slide-down 0.3s -0.1s 1;
   }
   &__title {
     display: flex;

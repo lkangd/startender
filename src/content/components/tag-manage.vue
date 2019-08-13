@@ -1,5 +1,6 @@
 <template>
   <popup
+    :visible.sync="visible"
     @close="$store.commit('dom/CLOSE_TAG_MANAGE')"
     @confirm="save"
     confirmBtnText="保存"
@@ -71,6 +72,7 @@ export default {
       editingName: '',
       tags: [],
       willDeleteTags: [],
+      visible: false,
     };
   },
   watch: {
@@ -80,6 +82,9 @@ export default {
         this.tags = cloneDeep(newVal).slice(1, -1);
       },
     },
+  },
+  mounted() {
+    this.visible = true;
   },
   methods: {
     modifyTagName(tag, index) {
@@ -112,7 +117,7 @@ export default {
       this.tags.forEach(({ id, name, repos }) => id && this.$store.dispatch('tag/UPDATE', { id, name, repos }));
       this.tags.forEach(({ id, name, repos }) => !id && name && name.trim() && this.$store.dispatch('tag/ADD', { name }));
 
-      this.$store.dispatch('repo/SET_FILTER_TAG');
+      this.$store.dispatch('repo/SET_FILTER_TAG', this.$store.state.tag.ALL_TAGED_ID);
       this.$store.commit('dom/CLOSE_TAG_MANAGE');
     },
   },

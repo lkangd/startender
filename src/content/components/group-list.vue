@@ -7,12 +7,26 @@
       v-for="(group, index) in $store.state.group.bars"
     >
       <div
-        @click="$set(group, 'open', !group.open)"
+        @click="group.count && $set(group, 'open', !group.open)"
         class="group__bar"
       >
-        <h4
-          class="group__title"
-        >{{ group.name }}({{ group.repos.length }}{{ isFiltered && group.count && `/${group.count}` || '' }})</h4>
+        <h4 class="group__title">
+          {{ group.name }}(
+          <span
+            class="group__text"
+            v-if="isFiltered && group.count"
+          >
+            <span
+              :class="{ 'group__text--highlight': !!group.repos.length }"
+            >{{ group.repos.length }}</span>
+            /{{ group.count }}
+          </span>
+          <span
+            class="group__text"
+            v-else
+          >{{ group.repos.length }}</span>
+          )
+        </h4>
         <svg
           class="group__dot"
           v-html="require('@img/group-dot.svg')"
@@ -71,6 +85,12 @@ export default {
       font-size: 12px;
       font-weight: bold;
       color: #24292e;
+    }
+    &__text {
+      font-weight: 500;
+      &--highlight {
+        color: #e36209;
+      }
     }
     &__dot {
       width: 4px;

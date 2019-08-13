@@ -3,10 +3,6 @@ import Main from './main.vue';
 
 const isVNode = node => node !== null && typeof node === 'object' && node.hasOwnProperty('componentOptions');
 const props = {
-  closed: {
-    type: Boolean,
-    default: false,
-  },
   visible: {
     type: Boolean,
     default: true,
@@ -25,6 +21,10 @@ const props = {
   },
   cancelBtnText: {
     type: String,
+    default: '',
+  },
+  cancalCallback: {
+    type: [Function, String],
     default: '',
   },
 };
@@ -51,6 +51,7 @@ export default function Popup(options = {}) {
     options.handleConfirmResolve = resolve;
     options.handleCancelReject = reject;
     options.visible = false;
+    options.closed = false;
 
     const instance = new PopupConstructor({ data: options });
     if (isVNode(instance.text)) {
@@ -75,6 +76,6 @@ export default function Popup(options = {}) {
 
 Popup.install = function(Vue, { mountPoint } = {}) {
   const context = { mountPoint };
-  Vue.component('popup', { ...Main, props });
+  Vue.component(Main.name, { ...Main, props });
   Vue.prototype.$popup = Popup.bind(context);
 };
