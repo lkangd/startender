@@ -4,7 +4,6 @@ import store from './store';
 
 import '@/assets/less';
 import $storageSync from '@/utils/storage-sync';
-import { getAccessToken } from '@/github/api-v3';
 import { isStarsTab, saveStarsTabUrl } from '@/github/utils';
 
 import TagController from '@/controller/tag';
@@ -42,12 +41,7 @@ const instantiation = async () => {
   const accessToken = await $storageSync.get('GITHUB_STARS_HELPER_ACCESS_TOKEN');
   store.commit('UPDATE_ACCESS_TOKEN', accessToken);
 
-  await Promise.all([
-    store.dispatch('tag/INSTALL_CONTROLLER', new TagController()),
-    store.dispatch('group/INSTALL_CONTROLLER', new GroupController()),
-    store.dispatch('remark/INSTALL_CONTROLLER', new RemarkController()),
-  ]);
-  store.dispatch('repo/INSTALL_CONTROLLER', new FilterController());
+  await controllerInit();
 
   if (!$(`#${id}`).length) {
     $(`<div id="${id}"></div>`).appendTo($('body'));
@@ -57,18 +51,26 @@ const instantiation = async () => {
     app.$mount(`#${id}`);
   }, 0);
 };
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-  if (request.accessCode) {
-    const accessToken = await getAccessToken(request.accessCode);
-    $storageSync.set('GITHUB_STARS_HELPER_ACCESS_TOKEN', accessToken);
-    window.location.replace(localStorage.getItem('stars_helper.stars_tab_url'));
-  }
-  if (request.mountInstance) {
-    instantiation();
-  }
-});
+const controllerInit = async () => {
+  await Promise.all([
+    store.dispatch('tag/INSTALL_CONTROLLER', new TagController()),
+    store.dispatch('group/INSTALL_CONTROLLER', new GroupController()),
+    store.dispatch('remark/INSTALL_CONTROLLER', new RemarkController()),
+  ]);
+  await store.dispatch('repo/INSTALL_CONTROLLER', new FilterController());
+};
 
 // save user stars tab url to localStorage, after authrized jump to this url
 saveStarsTabUrl();
 // only init views in stars page
 isStarsTab() && instantiation();
+
+chrome.runtime.onMessage.addListener(async request => {
+  if (request.getAccessTokenFailed) {
+    Toast.error({ text: 'Github stars helper: 授权失败, 请重试', duration: 10000 });
+    instantiation();
+  }
+  if (request.mountInstance) {
+    instantiation();
+  }
+});

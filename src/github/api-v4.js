@@ -121,3 +121,51 @@ export function getStarredRepos() {
     query();
   });
 }
+
+/**
+ * get a specify repo from github by name and owner
+ *
+ * @export
+ * @param {String} nameWithOwner eg: lkangd/github-stars-helper
+ * @param {String} accessToken github request access token
+ * @returns repo
+ */
+export function getRepo(nameWithOwner, accessToken) {
+  const [owner, name] = nameWithOwner.split('/');
+  return client.query({
+    context: {
+      headers: {
+        Authorization: `token ${Store.state.accessToken || accessToken}`,
+      },
+    },
+    query: gql`
+      {
+        repository(owner: "${owner}", name: "${name}") {
+          id
+          name
+          owner {
+            login
+          }
+          nameWithOwner
+          primaryLanguage {
+            color
+            name
+          }
+          pushedAt
+          description
+          forkCount
+          url
+          stargazers {
+            totalCount
+          }
+        }
+        rateLimit {
+          limit
+          cost
+          remaining
+          resetAt
+        }
+      }
+    `,
+  });
+}

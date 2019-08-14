@@ -86,7 +86,7 @@ module.exports = {
   plugins: [
     new VueLoaderPlugin(),
     new webpack.ProvidePlugin({ $: 'jquery' }),
-    new MiniCssExtractPlugin({ filename: 'main.css', chunkFilename: '[id].css' }),
+    new MiniCssExtractPlugin({ filename: '[name].css', chunkFilename: '[id].css' }),
     new CopyPlugin([
       { from: path.resolve(__dirname, '../static'), to: path.resolve(__dirname, '../dist') },
       { from: path.resolve(__dirname, '../manifest.json'), to: path.resolve(__dirname, '../dist/manifest.json') },

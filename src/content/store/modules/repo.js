@@ -109,6 +109,7 @@ export default {
       localStorage.setItem('stars_helper.starred_repos_id', JSON.stringify(state.reposBaseID));
       localStorage.setItem('stars_helper.languages_count', JSON.stringify(state.reposLanguage));
       dispatch('FILTER_REPOS');
+      return reposBase;
     },
   },
 };

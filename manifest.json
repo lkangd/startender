@@ -3,12 +3,12 @@
   "name": "Github Stars Helper",
   "version": "1.0.0",
   "description": "A Chrome extension that helps you manage Github starred repos.",
-  "permissions": ["contextMenus", "bookmarks", "tabs", "activeTab", "storage"],
+  "permissions": ["contextMenus", "bookmarks", "tabs", "activeTab", "storage", "webRequest", "webRequestBlocking", "*://*.github.com/*"],
   "homepage_url": "https://github.com/lkangd",
   "icons": { "16": "./icon/icon16.png", "48": "./icon/icon48.png", "128": "./icon/icon128.png" },
-  "background": { "scripts": ["./background.js"], "persistent": false },
+  "background": { "scripts": ["./background.js"], "persistent": true },
   "content_scripts": [
-    { "matches": ["http://github.com/*", "https://github.com/*"], "js": ["./content.js"], "css": ["./main.css"], "run_at": "document_start" }
+    { "matches": ["http://github.com/*", "https://github.com/*"], "js": ["./content.js"], "css": ["./main.css", "./content.css"], "run_at": "document_end" }
   ],
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "browser_action": { "default_title": "Jump to github" }

@@ -1,15 +1,27 @@
+import { getRepo } from '@/github/api-v4';
+import { getAccessToken } from '@/github/api-v3';
 import $storageSync from '@/utils/storage-sync';
 import { createBookmarks } from '@/utils/bookmarks';
 import { getAccessCode, isStarsTab } from '@/github/utils';
 
 let needOpenExtension = false;
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   const { url } = changeInfo;
   if (!url) return;
 
   const accessCode = getAccessCode(url);
-  accessCode && chrome.tabs.sendMessage(tabId, { accessCode });
+  if (accessCode) {
+    try {
+      const accessToken = await getAccessToken(accessCode);
+      await $storageSync.set('GITHUB_STARS_HELPER_ACCESS_TOKEN', accessToken);
+      const githubURL = 'https://github.com/';
+      const url = (await $storageSync.get('GITHUB_STARS_HELPER_STARS_URL')) || githubURL;
+      chrome.tabs.update(tabId, { url });
+    } catch (error) {
+      chrome.tabs.sendMessage(tabId, { getAccessTokenFailed: String(error) });
+    }
+  }
 
   if (isStarsTab(url) || needOpenExtension) {
     chrome.tabs.sendMessage(tabId, { mountInstance: true });
@@ -24,7 +36,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     actions[action](data);
     sendResponse({ bookmarkCreated: 'Bookmarks created success!' });
   } catch (e) {
-    sendResponse({ bookmarkCreated: 'Bookmarks created fail!' });
+    sendResponse({ bookmarkCreated: 'Bookmarks created failed!' });
   }
 });
 
@@ -34,8 +46,62 @@ chrome.browserAction.onClicked.addListener(async tab => {
   if (url.startsWith(githubURL)) {
     chrome.tabs.sendMessage(id, { mountInstance: true });
   } else {
-    const starsTabURL = (await $storageSync.get('GITHUB_STARS_HELPER_STARS_URL')) || githubURL;
-    chrome.tabs.create({ url: starsTabURL });
+    const url = (await $storageSync.get('GITHUB_STARS_HELPER_STARS_URL')) || githubURL;
+    chrome.tabs.create({ url });
     needOpenExtension = true;
   }
 });
+
+const isStarRepo = response => {
+  const { type, method, url } = response;
+  const URLRegexp = /^.*github\.com\/(.*)\/star$/;
+  const nameWithOwner = url.match(URLRegexp);
+  return type.toLowerCase() === 'xmlhttprequest' && method.toLowerCase() === 'post' && URLRegexp.test(url) && nameWithOwner && nameWithOwner[1];
+};
+
+const isUnstarRepo = response => {
+  const { type, method, url } = response;
+  const URLRegexp = /^.*github\.com\/(.*)\/unstar$/;
+  const nameWithOwner = url.match(URLRegexp);
+  return type.toLowerCase() === 'xmlhttprequest' && method.toLowerCase() === 'post' && URLRegexp.test(url) && nameWithOwner && nameWithOwner[1];
+};
+
+const addStarToQueue = async repo => {
+  const queue = (await $storageSync.get('GITHUB_STARS_HELPER_STAR_QUEUE')) || {};
+  const date = +new Date();
+  queue[repo.nameWithOwner] = { date, repo };
+  await $storageSync.set('GITHUB_STARS_HELPER_STAR_QUEUE', queue);
+};
+
+const addUnstarToQueue = async nameWithOwner => {
+  const queue = (await $storageSync.get('GITHUB_STARS_HELPER_UNSTAR_QUEUE')) || {};
+  const date = +new Date();
+  queue[nameWithOwner] = date;
+  await $storageSync.set('GITHUB_STARS_HELPER_UNSTAR_QUEUE', queue);
+};
+
+chrome.webRequest.onCompleted.addListener(
+  async response => {
+    const accessToken = await $storageSync.get('GITHUB_STARS_HELPER_ACCESS_TOKEN');
+    if (!accessToken) return;
+
+    const { tabId } = response;
+    let nameWithOwner;
+    if ((nameWithOwner = isStarRepo(response))) {
+      if (accessToken) {
+        const {
+          data: { repository },
+        } = await getRepo(nameWithOwner, accessToken);
+        await addStarToQueue(repository);
+        chrome.tabs.sendMessage(id, { starRepoInOtherPage: repository });
+      }
+      return;
+    }
+    if ((nameWithOwner = isUnstarRepo(response))) {
+      await addUnstarToQueue(nameWithOwner);
+      chrome.tabs.sendMessage(id, { unstarRepoInOtherPage: repository });
+      return;
+    }
+  },
+  { urls: ['<all_urls>'] },
+);
