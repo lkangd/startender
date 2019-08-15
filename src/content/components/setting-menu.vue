@@ -291,8 +291,8 @@ export default {
           this.$toast.warning(`不能导出空书签数据`);
           return;
         }
-        chrome.runtime.sendMessage({ action: 'bookmarks', data }, response => {
-          this.$toast.success(`导出${type}书签成功!`);
+        chrome.runtime.sendMessage({ action: 'bookmarks', data }, ({ bookmarkCreated }) => {
+          (bookmarkCreated && this.$toast.success(`导出${type}书签成功!`)) || this.$toast.error(`导出${type}书签失败, 请重试`);
         });
       });
     },

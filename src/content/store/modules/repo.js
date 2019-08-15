@@ -1,8 +1,9 @@
 import Toast from '@/content/components/toast/index';
 import { getStarredRepos } from '@/github/api-v4';
 import deepFreeze from '@/utils/deep-freeze';
+import { cloneDeep } from 'lodash';
 
-export default {
+const store = {
   namespaced: true,
   state: {
     repoEdit: null,
@@ -19,6 +20,9 @@ export default {
   mutations: {
     UPDATE_REPO_EDIT(state, repo) {
       state.repoEdit = repo;
+    },
+    RESET_STATE(state) {
+      Object.assign(state, originState);
     },
   },
   actions: {
@@ -113,3 +117,7 @@ export default {
     },
   },
 };
+
+const originState = cloneDeep(store.state);
+
+export default store;

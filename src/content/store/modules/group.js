@@ -1,7 +1,9 @@
+import { cloneDeep } from 'lodash';
+
 const UN_GROUPED_ID = Symbol('UN_GROUPED_ID');
 const ALL_GROUPED_ID = Symbol('ALL_GROUPED_ID');
 
-export default {
+const store = {
   namespaced: true,
   state: {
     bars: [],
@@ -9,6 +11,11 @@ export default {
     isInstalled: false,
     UN_GROUPED_ID,
     ALL_GROUPED_ID,
+  },
+  mutations: {
+    RESET_STATE(state) {
+      Object.assign(state, originState);
+    },
   },
   actions: {
     async INSTALL_CONTROLLER({ commit, state }, controller) {
@@ -70,3 +77,7 @@ export default {
     },
   },
 };
+
+const originState = cloneDeep(store.state);
+
+export default store;

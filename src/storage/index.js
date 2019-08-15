@@ -64,6 +64,8 @@ export default {
   async setState(data = { tags: { tags: {}, repos: {} }, groups: { groups: {}, repos: {} }, remarks: {} }) {
     this.data = data;
     await $storageSync.set('GITHUB_STARS_HELPER_DATA', this.data);
-    console.warn('Storage clear!');
+  },
+  clearState() {
+    this.data = null;
   },
 };

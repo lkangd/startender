@@ -1,6 +1,6 @@
-import Vue from 'vue';
+import { cloneDeep } from 'lodash';
 
-export default {
+const store = {
   namespaced: true,
   state: {
     controller: null,
@@ -9,6 +9,11 @@ export default {
   },
   getters: {
     store: state => state.controller.store,
+  },
+  mutations: {
+    RESET_STATE(state) {
+      Object.assign(state, originState);
+    },
   },
   actions: {
     async INSTALL_CONTROLLER({ commit, state }, controller) {
@@ -39,3 +44,7 @@ export default {
     },
   },
 };
+
+const originState = cloneDeep(store.state);
+
+export default store;

@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import { cloneDeep } from 'lodash';
 
 import dom from './modules/dom';
 import tag from './modules/tag';
@@ -9,7 +10,7 @@ import remark from './modules/remark';
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+const store = new Vuex.Store({
   modules: {
     dom,
     tag,
@@ -25,4 +26,17 @@ export default new Vuex.Store({
       state.accessToken = token;
     },
   },
+  actions: {
+    RESET_STATE({ state, commit }) {
+      Object.assign(state, originState);
+      commit('dom/RESET_STATE');
+      commit('tag/RESET_STATE');
+      commit('group/RESET_STATE');
+      commit('remark/RESET_STATE');
+    },
+  },
 });
+
+const originState = cloneDeep(store.state);
+
+export default store;

@@ -1,7 +1,9 @@
+import { cloneDeep } from 'lodash';
+
 const UN_TAGED_ID = Symbol('UN_TAGED_ID');
 const ALL_TAGED_ID = Symbol('ALL_TAGED_ID');
 
-export default {
+const store = {
   namespaced: true,
   state: {
     bars: [],
@@ -14,6 +16,9 @@ export default {
   mutations: {
     UPDATE_FILTERED_TAG_ID(state, tagID) {
       state.filteredTagID = tagID;
+    },
+    RESET_STATE(state) {
+      Object.assign(state, originState);
     },
   },
   actions: {
@@ -72,7 +77,10 @@ export default {
       };
       state.bars.push(unTag);
       state.bars.unshift(allTag);
-      // console.log('state.bars :', state.bars);
     },
   },
 };
+
+const originState = cloneDeep(store.state);
+
+export default store;

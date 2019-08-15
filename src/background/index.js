@@ -30,13 +30,28 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  const actions = { bookmarks: createBookmarks };
   const { data, action } = request;
+  const githubURL = 'https://github.com/';
+  const actions = {
+    bookmarks: data => {
+      try {
+        createBookmarks(data);
+        sendResponse({ bookmarkCreated: true });
+      } catch (e) {
+        sendResponse({ bookmarkCreated: false });
+      }
+    },
+    instantiation: () => {
+      chrome.tabs.query({}, tabs => {
+        tabs = tabs.filter(tab => tab.url.startsWith(githubURL));
+        tabs.forEach(({ id }) => chrome.tabs.sendMessage(id, { instanceID: data.id }));
+      });
+    },
+  };
   try {
     actions[action](data);
-    sendResponse({ bookmarkCreated: 'Bookmarks created success!' });
-  } catch (e) {
-    sendResponse({ bookmarkCreated: 'Bookmarks created failed!' });
+  } catch (error) {
+    console.error('onMessage Error:', error);
   }
 });
 

@@ -1,4 +1,4 @@
-import { debounce } from 'lodash';
+import { debounce, cloneDeep } from 'lodash';
 
 const TOGGLE_BTN_WIDTH = 30;
 const SIDEBAR_MIN_WIDTH = 400;
@@ -10,7 +10,7 @@ const toggleGlobalScrollBar = bool => {
   classList[(bool && 'add') || 'remove']('stars-helper-hide-scroll-bar');
 };
 
-export default {
+const store = {
   namespaced: true,
   state: {
     showPanel: false,
@@ -23,6 +23,9 @@ export default {
     highlightText: '',
   },
   mutations: {
+    RESET_STATE(state) {
+      Object.assign(state, originState);
+    },
     UPDATE_HEIGHT_TEXT(state, text) {
       state.highlightText = text;
     },
@@ -73,3 +76,7 @@ export default {
     },
   },
 };
+
+const originState = cloneDeep(store.state);
+
+export default store;

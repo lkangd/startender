@@ -1,8 +1,10 @@
 import Vue from 'vue';
 import Main from './main';
 import store from './store';
+import shortid from 'shortid';
 
 import '@/assets/less';
+import storage from '@/storage';
 import $storageSync from '@/utils/storage-sync';
 import { isStarsTab, saveStarsTabUrl } from '@/github/utils';
 
@@ -49,8 +51,19 @@ const instantiation = async () => {
   setTimeout(() => {
     app = new Vue({ store, render: h => h(Main) });
     app.$mount(`#${id}`);
+    app.$_instanceID = shortid.generate();
+    chrome.runtime.sendMessage({ action: 'instantiation', data: { id: app.$_instanceID } });
   }, 0);
 };
+
+const instanceDestroy = () => {
+  if (!app) return;
+
+  app.$destroy();
+  $(`.${id}-wrapper`).remove();
+  app = null;
+};
+
 const controllerInit = async () => {
   await Promise.all([
     store.dispatch('tag/INSTALL_CONTROLLER', new TagController()),
@@ -60,6 +73,7 @@ const controllerInit = async () => {
   await store.dispatch('repo/INSTALL_CONTROLLER', new FilterController());
 };
 
+// store.commit('SET_APP_DESTROY_FUN', instanceDestroy);
 // save user stars tab url to localStorage, after authrized jump to this url
 saveStarsTabUrl();
 // only init views in stars page
@@ -72,5 +86,10 @@ chrome.runtime.onMessage.addListener(async request => {
   }
   if (request.mountInstance) {
     instantiation();
+  }
+  if (request.instanceID && app && request.instanceID !== app.$_instanceID) {
+    instanceDestroy();
+    store.dispatch('RESET_STATE');
+    storage.clearState();
   }
 });
