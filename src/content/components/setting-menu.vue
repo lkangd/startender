@@ -142,11 +142,11 @@ export default {
 
                     loading.update('插件重启中...');
                     this.$toast.success('清除管理数据成功');
-                    window.location.reload();
+                    chrome.runtime.sendMessage({ action: 'reInstantiation' });
                   } catch (e) {
                     loading.update('插件重启中...');
                     this.$toast.error('清除管理数据失败');
-                    window.location.reload();
+                    chrome.runtime.sendMessage({ action: 'reInstantiation' });
                   }
                 })
                 .catch(() => {});
@@ -221,14 +221,14 @@ export default {
           ]);
           loading.update('插件重启中...');
           this.$toast.success('恢复管理数据成功');
-          window.location.reload();
+          chrome.runtime.sendMessage({ action: 'reInstantiation' });
         } catch (error) {
           console.error('Manage Data Revert Failed :', error);
           loading.update('数据回滚, 插件重启中...');
           this.$toast.error('恢复管理数据失败');
           (async () => {
             await Storage.setState(restoreData);
-            window.location.reload();
+            chrome.runtime.sendMessage({ action: 'reInstantiation' });
           })();
         }
       };

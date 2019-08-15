@@ -92,4 +92,10 @@ chrome.runtime.onMessage.addListener(async request => {
     store.dispatch('RESET_STATE');
     storage.clearState();
   }
+  if (request.reInstantiation) {
+    instanceDestroy();
+    store.dispatch('RESET_STATE');
+    storage.clearState();
+    setTimeout(() => instantiation(), 0);
+  }
 });

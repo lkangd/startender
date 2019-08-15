@@ -47,6 +47,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         tabs.forEach(({ id }) => chrome.tabs.sendMessage(id, { instanceID: data.id }));
       });
     },
+    reInstantiation: () => {
+      const {
+        tab: { id },
+      } = sender;
+      chrome.tabs.sendMessage(id, { reInstantiation: true });
+    },
   };
   try {
     actions[action](data);
