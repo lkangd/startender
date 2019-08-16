@@ -6,7 +6,7 @@ import { getAccessCode, isStarsTab } from '@/github/utils';
 
 let needOpenExtension = false;
 
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   const { url } = changeInfo;
   if (!url) return;
 

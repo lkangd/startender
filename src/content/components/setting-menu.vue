@@ -346,28 +346,7 @@ export default {
     border: 1px solid #d1d5da;
     border-radius: 3px;
     box-shadow: 0 1px 15px rgba(27, 31, 35, 0.15);
-    &::before {
-      content: '';
-      display: inline-block;
-      position: absolute;
-      top: -16px;
-      left: auto;
-      right: 11px;
-      margin-left: 0;
-      border: 8px solid transparent;
-      border-bottom-color: rgba(27, 31, 35, 0.15);
-    }
-    &::after {
-      content: '';
-      display: inline-block;
-      position: absolute;
-      top: -14px;
-      left: auto;
-      right: 12px;
-      margin-left: 0;
-      border: 7px solid transparent;
-      border-bottom-color: #fff;
-    }
+    .menu-triangle(11px);
   }
   &__sub-list {
     & + & {
