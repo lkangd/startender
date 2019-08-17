@@ -142,11 +142,11 @@ export default {
 
                     loading.update('插件重启中...');
                     this.$toast.success('清除管理数据成功');
-                    chrome.runtime.sendMessage({ action: 'reInstantiation' });
+                    chrome.runtime.sendMessage({ action: 'instanceRefresh' });
                   } catch (e) {
                     loading.update('插件重启中...');
                     this.$toast.error('清除管理数据失败');
-                    chrome.runtime.sendMessage({ action: 'reInstantiation' });
+                    chrome.runtime.sendMessage({ action: 'instanceRefresh' });
                   }
                 })
                 .catch(() => {});
@@ -221,14 +221,14 @@ export default {
           ]);
           loading.update('插件重启中...');
           this.$toast.success('恢复管理数据成功');
-          chrome.runtime.sendMessage({ action: 'reInstantiation' });
+          chrome.runtime.sendMessage({ action: 'instanceRefresh' });
         } catch (error) {
           console.error('Manage Data Revert Failed :', error);
           loading.update('数据回滚, 插件重启中...');
           this.$toast.error('恢复管理数据失败');
           (async () => {
             await Storage.setState(restoreData);
-            chrome.runtime.sendMessage({ action: 'reInstantiation' });
+            chrome.runtime.sendMessage({ action: 'instanceRefresh' });
           })();
         }
       };
@@ -291,7 +291,7 @@ export default {
           this.$toast.warning(`不能导出空书签数据`);
           return;
         }
-        chrome.runtime.sendMessage({ action: 'bookmarks', data }, ({ bookmarkCreated }) => {
+        chrome.runtime.sendMessage({ action: 'createBookmarks', data }, ({ bookmarkCreated }) => {
           (bookmarkCreated && this.$toast.success(`导出${type}书签成功!`)) || this.$toast.error(`导出${type}书签失败, 请重试`);
         });
       });

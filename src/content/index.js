@@ -73,29 +73,37 @@ const controllerInit = async () => {
   await store.dispatch('repo/INSTALL_CONTROLLER', new FilterController());
 };
 
-// store.commit('SET_APP_DESTROY_FUN', instanceDestroy);
 // save user stars tab url to localStorage, after authrized jump to this url
 saveStarsTabUrl();
 // only init views in stars page
 isStarsTab() && instantiation();
 
-chrome.runtime.onMessage.addListener(async request => {
-  if (request.getAccessTokenFailed) {
-    Toast.error({ text: 'Github stars helper: 授权失败, 请重试', duration: 10000 });
-    instantiation();
-  }
-  if (request.mountInstance) {
-    instantiation();
-  }
-  if (request.instanceID && app && request.instanceID !== app.$_instanceID) {
-    instanceDestroy();
-    store.dispatch('RESET_STATE');
-    storage.clearState();
-  }
-  if (request.reInstantiation) {
-    instanceDestroy();
-    store.dispatch('RESET_STATE');
-    storage.clearState();
-    setTimeout(() => instantiation(), 0);
+chrome.runtime.onMessage.addListener(async ({ action, data }) => {
+  const actions = {
+    backgroundToast: ({ text, duration }) => {
+      Toast.error({ text, duration });
+      instantiation();
+    },
+    instanceMount: () => {
+      instantiation();
+    },
+    instanceUnmount: instanceID => {
+      if (app && instanceID !== app.$_instanceID) {
+        instanceDestroy();
+        store.dispatch('RESET_STATE');
+        storage.clearState();
+      }
+    },
+    instanceRefresh: () => {
+      instanceDestroy();
+      store.dispatch('RESET_STATE');
+      storage.clearState();
+      setTimeout(() => instantiation(), 0);
+    },
+  };
+  try {
+    actions[action](data);
+  } catch (error) {
+    console.error('onMessage Error:', error);
   }
 });

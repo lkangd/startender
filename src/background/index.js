@@ -19,12 +19,12 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
       const url = (await $storageSync.get('GITHUB_STARS_HELPER_STARS_URL')) || githubURL;
       chrome.tabs.update(tabId, { url });
     } catch (error) {
-      chrome.tabs.sendMessage(tabId, { getAccessTokenFailed: String(error) });
+      chrome.tabs.sendMessage(tabId, { action: 'backgroundToast', data: { text: 'Github stars helper: 授权失败, 请重试', duration: 10000 } });
     }
   }
 
   if (isStarsTab(url) || needOpenExtension) {
-    chrome.tabs.sendMessage(tabId, { mountInstance: true });
+    chrome.tabs.sendMessage(tabId, { action: 'instanceMount' });
     needOpenExtension = false;
   }
 });
@@ -33,7 +33,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   const { data, action } = request;
   const githubURL = 'https://github.com/';
   const actions = {
-    bookmarks: data => {
+    createBookmarks: data => {
       try {
         createBookmarks(data);
         sendResponse({ bookmarkCreated: true });
@@ -44,14 +44,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     instantiation: () => {
       chrome.tabs.query({}, tabs => {
         tabs = tabs.filter(tab => tab.url.startsWith(githubURL));
-        tabs.forEach(({ id }) => chrome.tabs.sendMessage(id, { instanceID: data.id }));
+        tabs.forEach(({ id }) => chrome.tabs.sendMessage(id, { action: 'instanceUnmount', data: data.id }));
       });
     },
-    reInstantiation: () => {
+    instanceRefresh: () => {
       const {
         tab: { id },
       } = sender;
-      chrome.tabs.sendMessage(id, { reInstantiation: true });
+      chrome.tabs.sendMessage(id, { action: 'instanceRefresh' });
     },
   };
   try {
@@ -65,7 +65,7 @@ chrome.browserAction.onClicked.addListener(async tab => {
   const { url, id } = tab;
   const githubURL = 'https://github.com/';
   if (url.startsWith(githubURL)) {
-    chrome.tabs.sendMessage(id, { mountInstance: true });
+    chrome.tabs.sendMessage(id, { action: 'instanceMount' });
   } else {
     const url = (await $storageSync.get('GITHUB_STARS_HELPER_STARS_URL')) || githubURL;
     chrome.tabs.create({ url });
@@ -114,13 +114,13 @@ chrome.webRequest.onCompleted.addListener(
           data: { repository },
         } = await getRepo(nameWithOwner, accessToken);
         await addStarToQueue(repository);
-        chrome.tabs.sendMessage(id, { starRepoInOtherPage: repository });
+        chrome.tabs.sendMessage(id, { action: 'starRepoInOtherPage', data: repository });
       }
       return;
     }
     if ((nameWithOwner = isUnstarRepo(response))) {
       await addUnstarToQueue(nameWithOwner);
-      chrome.tabs.sendMessage(id, { unstarRepoInOtherPage: repository });
+      chrome.tabs.sendMessage(id, { action: 'unstarRepoInOtherPage', data: repository });
       return;
     }
   },
