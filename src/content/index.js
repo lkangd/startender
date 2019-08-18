@@ -100,6 +100,30 @@ chrome.runtime.onMessage.addListener(async ({ action, data }) => {
       storage.clearState();
       setTimeout(() => instantiation(), 0);
     },
+    repoAdd: async repo => {
+      // console.log('repo :', repo);
+      if (!store.state.accessToken) return;
+
+      const removeStarToQueue = async repo => {
+        const queue = (await $storageSync.get('GITHUB_STARS_HELPER_STAR_QUEUE')) || {};
+        delete queue[repo.nameWithOwner];
+        await $storageSync.set('GITHUB_STARS_HELPER_STAR_QUEUE', queue);
+      };
+      await store.dispatch('repo/STAR_REPO', repo);
+      removeStarToQueue();
+    },
+    repoRemove: async nameWithOwner => {
+      // console.log('nameWithOwner :', nameWithOwner);
+      if (!store.state.accessToken) return;
+
+      const removeUnstarToQueue = async nameWithOwner => {
+        const queue = (await $storageSync.get('GITHUB_STARS_HELPER_UNSTAR_QUEUE')) || {};
+        delete queue[nameWithOwner];
+        await $storageSync.set('GITHUB_STARS_HELPER_UNSTAR_QUEUE', queue);
+      };
+      await store.dispatch('repo/UNSTAR_REPO', nameWithOwner);
+      removeUnstarToQueue();
+    },
   };
   try {
     actions[action](data);

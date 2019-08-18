@@ -38,10 +38,37 @@ const store = {
       dispatch('tag/UPDATE_BARS', null, { root: true });
       dispatch('group/UPDATE_BARS', state.reposFilteredID, { root: true });
     },
-    UNSTAR_REPO({ state, dispatch }, repo) {
+    STAR_REPO({ state, dispatch, rootState }, repo) {
+      if (!rootState.accessToken) return;
+
+      const repos = JSON.parse(localStorage.getItem('stars_helper.starred_repos'));
+      const reposBase = [{ ...repo, repoIndex: 0 }];
+      for (let i = 0, repo; (repo = repos[i]); ) {
+        repo.repoIndex = ++i;
+        reposBase.push(Object.freeze(repo));
+      }
+
+      state.reposBase = reposBase;
+      state.reposBaseID.unshift(repo.id);
+      state.reposLanguage[repo.primaryLanguage] && state.reposLanguage[repo.primaryLanguage.name]++;
+      localStorage.setItem('stars_helper.starred_repos', JSON.stringify(state.reposBase));
+      localStorage.setItem('stars_helper.starred_repos_id', JSON.stringify(state.reposBaseID));
+      localStorage.setItem('stars_helper.languages_count', JSON.stringify(state.reposLanguage));
+      dispatch('FILTER_REPOS');
+    },
+    UNSTAR_REPO({ state, dispatch, rootState }, repo) {
+      if (!rootState.accessToken) return;
+
+      if (typeof repo === 'string') {
+        repo = state.reposBase.find(item => item.nameWithOwner === repo);
+
+        if (!repo) return;
+      }
       state.reposBase.splice(repo.repoIndex, 1);
+      state.reposBaseID.splice(repo.repoIndex, 1);
       state.reposLanguage[repo.primaryLanguage] && state.reposLanguage[repo.primaryLanguage.name]--;
       localStorage.setItem('stars_helper.starred_repos', JSON.stringify(state.reposBase));
+      localStorage.setItem('stars_helper.starred_repos_id', JSON.stringify(state.reposBaseID));
       localStorage.setItem('stars_helper.languages_count', JSON.stringify(state.reposLanguage));
       dispatch('FILTER_REPOS');
     },
@@ -94,21 +121,22 @@ const store = {
       const repos = await getStarredRepos();
       const reposBase = [];
       const reposBaseID = [];
-      state.reposLanguage = {};
+      const reposLanguage = {};
       for (let i = 0, repo; (repo = repos[i]); ) {
         repo = repo.node;
         repo.repoIndex = i++;
         reposBase.push(Object.freeze(repo));
         reposBaseID.push(repo.id);
         if (!repo.primaryLanguage) continue;
-        if (state.reposLanguage[repo.primaryLanguage.name]) {
-          state.reposLanguage[repo.primaryLanguage.name]++;
+        if (reposLanguage[repo.primaryLanguage.name]) {
+          reposLanguage[repo.primaryLanguage.name]++;
         } else {
-          state.reposLanguage[repo.primaryLanguage.name] = 1;
+          reposLanguage[repo.primaryLanguage.name] = 1;
         }
       }
       state.reposBase = reposBase;
       state.reposBaseID = reposBaseID;
+      state.reposLanguage = reposLanguage;
       localStorage.setItem('stars_helper.starred_repos', JSON.stringify(state.reposBase));
       localStorage.setItem('stars_helper.starred_repos_id', JSON.stringify(state.reposBaseID));
       localStorage.setItem('stars_helper.languages_count', JSON.stringify(state.reposLanguage));

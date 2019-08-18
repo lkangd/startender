@@ -5,6 +5,7 @@ import { createBookmarks } from '@/utils/bookmarks';
 import { getAccessCode, isStarsTab } from '@/github/utils';
 
 let needOpenExtension = false;
+let latestInstanceTabID;
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   const { url } = changeInfo;
@@ -31,6 +32,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   const { data, action } = request;
+  const tabID = sender.tab.id;
   const githubURL = 'https://github.com/';
   const actions = {
     createBookmarks: data => {
@@ -42,16 +44,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       }
     },
     instantiation: () => {
+      latestInstanceTabID = tabID;
       chrome.tabs.query({}, tabs => {
         tabs = tabs.filter(tab => tab.url.startsWith(githubURL));
         tabs.forEach(({ id }) => chrome.tabs.sendMessage(id, { action: 'instanceUnmount', data: data.id }));
       });
     },
     instanceRefresh: () => {
-      const {
-        tab: { id },
-      } = sender;
-      chrome.tabs.sendMessage(id, { action: 'instanceRefresh' });
+      chrome.tabs.sendMessage(tabID, { action: 'instanceRefresh' });
     },
   };
   try {
@@ -101,12 +101,12 @@ const addUnstarToQueue = async nameWithOwner => {
   await $storageSync.set('GITHUB_STARS_HELPER_UNSTAR_QUEUE', queue);
 };
 
+// TODO: sync batch star and unstart in other page
 chrome.webRequest.onCompleted.addListener(
   async response => {
     const accessToken = await $storageSync.get('GITHUB_STARS_HELPER_ACCESS_TOKEN');
     if (!accessToken) return;
 
-    const { tabId } = response;
     let nameWithOwner;
     if ((nameWithOwner = isStarRepo(response))) {
       if (accessToken) {
@@ -114,13 +114,13 @@ chrome.webRequest.onCompleted.addListener(
           data: { repository },
         } = await getRepo(nameWithOwner, accessToken);
         await addStarToQueue(repository);
-        chrome.tabs.sendMessage(id, { action: 'starRepoInOtherPage', data: repository });
+        latestInstanceTabID && chrome.tabs.sendMessage(latestInstanceTabID, { action: 'repoAdd', data: repository });
       }
       return;
     }
     if ((nameWithOwner = isUnstarRepo(response))) {
       await addUnstarToQueue(nameWithOwner);
-      chrome.tabs.sendMessage(id, { action: 'unstarRepoInOtherPage', data: repository });
+      latestInstanceTabID && chrome.tabs.sendMessage(latestInstanceTabID, { action: 'repoRemove', data: nameWithOwner });
       return;
     }
   },
