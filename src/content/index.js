@@ -110,7 +110,7 @@ chrome.runtime.onMessage.addListener(async ({ action, data }) => {
         await $storageSync.set('GITHUB_STARS_HELPER_STAR_QUEUE', queue);
       };
       await store.dispatch('repo/STAR_REPO', repo);
-      removeStarToQueue();
+      removeStarToQueue(repo);
     },
     repoRemove: async nameWithOwner => {
       // console.log('nameWithOwner :', nameWithOwner);
