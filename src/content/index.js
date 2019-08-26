@@ -81,6 +81,8 @@ const asyncRepoOperation = async () => {
     $storageSync.get('GITHUB_STARS_HELPER_STAR_QUEUE'),
     $storageSync.get('GITHUB_STARS_HELPER_UNSTAR_QUEUE'),
   ]);
+  const filteredStarQueue = [];
+  const filteredUnstarQueue = [];
   // handle star
   for (const repoFullname in starQueue) {
     if (starQueue.hasOwnProperty(repoFullname) && unstarQueue.hasOwnProperty(repoFullname)) {
@@ -90,15 +92,17 @@ const asyncRepoOperation = async () => {
       continue;
     }
     if (starQueue.hasOwnProperty(repoFullname) && !unstarQueue.hasOwnProperty(repoFullname)) {
-      await store.dispatch('repo/STAR_REPO', starQueue[repoFullname].repo);
+      filteredStarQueue.push(starQueue[repoFullname].repo);
     }
   }
+  await store.dispatch('repo/STAR_REPO', filteredStarQueue);
   // handle unstar
   for (const repoFullname in unstarQueue) {
     if (unstarQueue.hasOwnProperty(repoFullname)) {
-      await store.dispatch('repo/UNSTAR_REPO', repoFullname);
+      filteredUnstarQueue.push(repoFullname);
     }
   }
+  await store.dispatch('repo/UNSTAR_REPO', filteredUnstarQueue);
   await Promise.all([$storageSync.set('GITHUB_STARS_HELPER_STAR_QUEUE', {}), $storageSync.set('GITHUB_STARS_HELPER_UNSTAR_QUEUE', {})]);
 };
 
@@ -129,29 +133,13 @@ chrome.runtime.onMessage.addListener(async ({ action, data }) => {
       storage.clearState();
       setTimeout(() => instantiation(), 0);
     },
-    repoAdd: async repo => {
-      // console.log('repo :', repo);
+    repoAdd: repo => {
       if (!store.state.accessToken || !app || !app._isMounted) return;
-
-      const removeStarToQueue = async repo => {
-        const queue = (await $storageSync.get('GITHUB_STARS_HELPER_STAR_QUEUE')) || {};
-        delete queue[repo.nameWithOwner];
-        await $storageSync.set('GITHUB_STARS_HELPER_STAR_QUEUE', queue);
-      };
-      await store.dispatch('repo/STAR_REPO', repo);
-      removeStarToQueue(repo);
+      store.dispatch('repo/STAR_REPO', repo);
     },
-    repoRemove: async nameWithOwner => {
-      // console.log('nameWithOwner :', nameWithOwner);
+    repoRemove: nameWithOwner => {
       if (!store.state.accessToken || !app || !app._isMounted) return;
-
-      const removeUnstarToQueue = async nameWithOwner => {
-        const queue = (await $storageSync.get('GITHUB_STARS_HELPER_UNSTAR_QUEUE')) || {};
-        delete queue[nameWithOwner];
-        await $storageSync.set('GITHUB_STARS_HELPER_UNSTAR_QUEUE', queue);
-      };
-      await store.dispatch('repo/UNSTAR_REPO', nameWithOwner);
-      removeUnstarToQueue();
+      store.dispatch('repo/UNSTAR_REPO', nameWithOwner);
     },
   };
   try {

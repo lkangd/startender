@@ -246,7 +246,7 @@ export default {
     async save() {
       // handle unstar
       if (this.unStar) {
-        this.$store.dispatch('repo/UNSTAR_REPO', this.repoEdit);
+        this.$store.dispatch('repo/UNSTAR_REPO', this.repoEdit.nameWithOwner);
         this.reset();
       }
       // handle group
