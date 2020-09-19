@@ -15,11 +15,13 @@ const _splitInnerHTML = innerHTML => {
  * @returns
  */
 export function highlight(el, binding) {
+  const matchRegExp = new RegExp(`(${binding.value.split(/\ +/).join('|')})`, 'ig');
+  console.log('matchRegExp :', matchRegExp);
   if (!binding.value || !binding.value.trim().length) {
     el.innerHTML = highlightedTagRemove(el.innerHTML);
     return;
   }
-  const matchRegExp = new RegExp(`(${binding.value.split(/\ +/).join('|')})`, 'ig');
+  // const matchRegExp = new RegExp(`(${binding.value.split(/\ +/).join('|')})`, 'ig');
   const innerHTML = _splitInnerHTML(highlightedTagRemove(el.innerHTML));
   el.innerHTML = innerHTML
     .map(text => (tagRegExp.test(text) && text) || text.replace(matchRegExp, `<span style="color: #e36209; font-weight: inherit;">$1</span>`))
